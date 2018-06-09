@@ -28,11 +28,20 @@ class PasswordInput extends React.Component {
     const rules = this.props.rules;
 
     if (minLen !== 0) {
-      rules.push({ rule: (val) => val.length >= minLen, key: 'minLen' });
+      rules.push({
+        rule: (val) => val.length >= minLen,
+        key: 'minLen',
+        message: `Minimal length is ${minLen}`,
+      });
     }
 
     if (maxLen !== 0) {
-      rules.push({ rule: (val) => val.length <= maxLen, key: 'maxLen', inverted: true });
+      rules.push({
+        rule: (val) => val.length <= maxLen,
+        key: 'maxLen',
+        message: `Maximal length is ${maxLen}`,
+        inverted: true,
+      });
     }
 
     if (uppercaseChars !== 0) {
@@ -42,6 +51,7 @@ class PasswordInput extends React.Component {
           return match && match.length >= uppercaseChars;
         },
         key: 'uppercaseChars',
+        message: `Requires at least ${uppercaseChars} uppercase characters`,
       });
     }
 
@@ -52,6 +62,7 @@ class PasswordInput extends React.Component {
           return match && match.length >= specialChars;
         },
         key: 'specialChars',
+        message: `Requires at least ${specialChars} special characters`,
       });
     }
 
@@ -62,6 +73,7 @@ class PasswordInput extends React.Component {
           return match && match.length >= digits;
         },
         key: 'digits',
+        message: `Requires at least ${digits} digits`,
       });
     }
 
@@ -81,7 +93,7 @@ class PasswordInput extends React.Component {
    * the right state regardless of where it comes from.
    *
    * @param {Object} stateToMerge defaults to this.state
-   * @return {Object} the state
+   * @returns {Object} the state
    */
   getState(stateToMerge = this.state) {
     return Object.keys(stateToMerge).reduce((state, key) => {
@@ -116,6 +128,10 @@ class PasswordInput extends React.Component {
     }
   }
 
+  /**
+   *
+   * @returns {{inputProps: {type: *, onChange: PasswordInput.handleInputChange}, toggleShowPassword: PasswordInput.handleToggleShowPassword}}
+   */
   getRootProps() {
     return {
       inputProps: this.getInputProps(),
@@ -124,9 +140,12 @@ class PasswordInput extends React.Component {
     };
   }
 
+  /**
+   *
+   * @param e
+   */
   handleInputChange = (e) => {
     const value = e.target.value;
-    this.props.onInputValueChange(value);
     this.setState({
       value,
       touched: true,
@@ -134,10 +153,18 @@ class PasswordInput extends React.Component {
     }); // TODO: Internal set state (props on state change vs setstate)
   };
 
+  /**
+   *
+   */
   handleToggleShowPassword = () => {
     this.setState((state) => ({ visible: !state.visible }));
   };
 
+  /**
+   *
+   * @param value
+   * @returns {{progress: {current: number, max: number, percent: number}, passed: boolean, errors: Array}}
+   */
   checkRules(value) {
     const rulesCount = this.rules.filter((r) => !r.inverted).length;
     const ruleStep = 100 / rulesCount;
@@ -157,7 +184,7 @@ class PasswordInput extends React.Component {
           progress.percent -= ruleStep;
         }
         passed = false;
-        errors.push(r.key);
+        errors.push({ key: r.key, message: r.message });
       }
     });
 
@@ -168,6 +195,10 @@ class PasswordInput extends React.Component {
     }
   }
 
+  /**
+   *
+   * @param newState
+   */
   setStateHelper(newState) {
     if (this.props.onStateChange) {
     }
@@ -187,7 +218,6 @@ PasswordInput.propTypes = {
   children: PropTypes.func,
   onChange: PropTypes.func,
   onStateChange: PropTypes.func,
-  onInputValueChange: PropTypes.func,
   visible: PropTypes.bool,
   rules: PropTypes.arrayOf(
     PropTypes.shape({
@@ -208,7 +238,6 @@ PasswordInput.propTypes = {
 PasswordInput.defaultProps = {
   onChange: () => {},
   onStateChange: () => {},
-  onInputValueChange: () => {},
   minLen: 0,
   maxLen: 0,
   digits: 0,
