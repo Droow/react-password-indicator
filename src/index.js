@@ -1,4 +1,4 @@
-import PasswordIndicator from './react-password-input';
+import PasswordIndicator from './react-password-indicator';
 
 PasswordIndicator.default = PasswordIndicator;
 
