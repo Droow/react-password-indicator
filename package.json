@@ -1,0 +1,57 @@
+{
+  "name": "react-password-input",
+  "version": "1.0.0",
+  "description": "Package providing flexible yet powerful password input with fully customizable render",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack --mode=production --watch",
+    "build": "webpack --mode=production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Droow/react-password-input.git"
+  },
+  "keywords": [
+    "react",
+    "enhanced",
+    "input",
+    "password",
+    "strength",
+    "indicator",
+    "strength",
+    "meter",
+    "password",
+    "indicator"
+  ],
+  "author": "Daniel Pršala (http://danielprsala.cz)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Droow/react-password-input/issues"
+  },
+  "homepage": "https://github.com/Droow/react-password-input#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.9.1",
+    "prop-types": "^15.6.1",
+    "react": "^16.4.0",
+    "webpack": "^4.12.0",
+    "webpack-cli": "^3.0.3"
+  },
+  "peerDependencies": {
+    "prop-types": "^15.6.1",
+    "react": "^16.4.0"
+  }
+}
