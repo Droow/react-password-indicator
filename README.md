@@ -17,38 +17,55 @@ const errorMessages = {
 };
 
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { visible: false };
+  }
+  
   render() {
     return (
-      <PasswordInput
-        minLen={4} // Optional predefined rule
-        digits={2} // Optional predefined rule
-        maxLen={10} // Optional predefined rule
-        specialChars={2} // Optional predefined rule
-        uppercaseChars={2} // Optional predefined rule
-        onChange={(val, state) => console.log('Current pass', val, 'and progress', state)}
-        // Aditional custom rules
-        rules={[
-            { rule: (val) => val.indexOf('@') > -1, key: 'customAtRule', message: 'Your password must contain the @ char.' }
-        ]}
-      >
-        {({ status, progress, getInputProps, getProgressProps, passed, isVisible, errors, toggleShowPassword, touched }) => (
-          <div>
-            <input {...getInputProps()} />
-            <button onClick={toggleShowPassword}>{isVisible ? 'Hide' : 'Show'}</button><br />
-            {touched &&
-              <div>
-                <progress {...getProgressProps()} />
-                <p>Password is {passed ? '' : 'in'}valid!</p>
-                {errors &&
-                  <ul>
-                    {errors.map((e) => <li key={e.key}>{errorMessages[e.key] || e,message}</li>)}
-                  </ul>
-                }
-              </div>
-            }
-          </div>
-        )}
-      </PasswordInput>
+      <div>
+        {/* Using controlled mode to toggle password visibility */}
+        <button onClick={() => this.setState((state) => ({ visible: !state.visible }))}>Show password</button>
+        <PasswordInput
+          minLen={4} // Optional predefined rule
+          digits={2} // Optional predefined rule
+          maxLen={10} // Optional predefined rule
+          specialChars={2} // Optional predefined rule
+          uppercaseChars={2} // Optional predefined rule
+          // Controlled mode
+          // if not set the toggleShowPassword function in the render function should be used
+          isVisible={this.state.visible} 
+          onChange={(val, state) => console.log('Current pass', val, 'and progress', state)}
+          // Additional custom rules
+          rules={[
+              { rule: (val) => val.indexOf('@') > -1, key: 'customAtRule', message: 'Your password must contain the @ char.' }
+          ]}
+        >
+          {({ status, progress, getInputProps, getProgressProps, passed, isVisible, errors, toggleShowPassword, touched }) => (
+            <div>
+              <input {...getInputProps()} />
+              {/*
+              Uncontrolled mode
+              just using provided function and the visibility state is internal
+              WARNING: Doesn't work when isVisible prop is provided to the PasswordInput
+              */}
+              <button onClick={toggleShowPassword}>{isVisible ? 'Hide' : 'Show'}</button><br />
+              {touched &&
+                <div>
+                  <progress {...getProgressProps()} />
+                  <p>Password is {passed ? '' : 'in'}valid!</p>
+                  {errors &&
+                    <ul>
+                      {errors.map((e) => <li key={e.key}>{errorMessages[e.key] || e.message}</li>)}
+                    </ul>
+                  }
+                </div>
+              }
+            </div>
+          )}
+        </PasswordInput>
+      </div>
     );
   }
 }
