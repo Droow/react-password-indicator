@@ -7,12 +7,12 @@ class PasswordInput extends React.Component {
     super(props);
 
     this.state = {
-      value: '',
+      value: props.defaultValue || '',
       touched: false,
-      passed: false,
-      progress: 0,
-      visible: false,
+      valid: false,
+      progress: { current: 0 },
       errors: [],
+      isVisible: false,
     };
 
     this.rules = this.getRules();
@@ -121,91 +121,101 @@ class PasswordInput extends React.Component {
    *
    * @returns {{type: *, onChange: PasswordInput.handleInputChange}}
    */
-  getInputProps() {
+  getInputProps = () => {
     return {
-      type: this.getState().visible ? 'text' : 'password',
+      type: this.getState().isVisible ? 'text' : 'password',
       onChange: this.handleInputChange,
+      value: this.state.value,
     }
-  }
+  };
+
+  getProgressProps = () => {
+    const { current, max } = this.state.progress;
+    return { value: current, max };
+  };
 
   /**
+   * Gets all the props that are passed to the render.
    *
    * @returns {{inputProps: {type: *, onChange: PasswordInput.handleInputChange}, toggleShowPassword: PasswordInput.handleToggleShowPassword}}
    */
   getRootProps() {
     return {
-      inputProps: this.getInputProps(),
+      getInputProps: this.getInputProps,
+      getProgressProps: this.getProgressProps,
       toggleShowPassword: this.handleToggleShowPassword,
       ...this.getState(),
     };
   }
 
   /**
-   *
+   * Handles the input change.
    * @param e
    */
   handleInputChange = (e) => {
     const value = e.target.value;
-    this.setState({
-      value,
-      touched: true,
-      ...this.checkRules(value),
-    }); // TODO: Internal set state (props on state change vs setstate)
+    const newState = this.checkRules(value);
+    if (this.isControlledProp('onChange')) {
+      this.props.onChange(value, newState);
+    }
+    this.setState({ ...newState, value, touched: true });
   };
 
   /**
-   *
+   * Handles the show password toggle.
    */
   handleToggleShowPassword = () => {
-    this.setState((state) => ({ visible: !state.visible }));
+    if (!this.isControlledProp('isVisible')) {
+      this.setState((state) => ({ isVisible: !state.isVisible }));
+    }
   };
 
   /**
+   * Validates current password against all supplied rules.
    *
    * @param value
-   * @returns {{progress: {current: number, max: number, percent: number}, passed: boolean, errors: Array}}
+   * @returns {{progress: {current: number, max: number, percent: number}, valid: boolean, errors: Array}}
    */
   checkRules(value) {
     const rulesCount = this.rules.filter((r) => !r.inverted).length;
     const ruleStep = 100 / rulesCount;
     let progress = { current: 0, max: rulesCount, percent: 0 };
-    let passed = true;
+    let valid = true;
     const errors = [];
     this.rules.forEach((r) => {
-      const result = r.rule(value);
+      const { rule, inverted, ...rest } = r;
+      const result = rule(value);
       if (result) {
-        if (!r.inverted) {
+        if (!inverted) {
           progress.current += 1;
           progress.percent += ruleStep;
         }
       } else {
-        if (r.inverted) {
+        if (inverted) {
           progress.current -= 1;
           progress.percent -= ruleStep;
         }
-        passed = false;
-        errors.push({ key: r.key, message: r.message });
+        valid = false;
+        errors.push(rest);
       }
     });
 
     return {
       progress,
-      passed,
+      valid,
       errors,
     }
   }
 
   /**
-   *
-   * @param newState
+   * Let's get this party started!
    */
-  setStateHelper(newState) {
-    if (this.props.onStateChange) {
-    }
-  }
-
   render() {
     const children = this.props.render || this.props.children;
+
+    if (!children) {
+      throw new Error('react-password-indicator: You must provide either children or the render function.');
+    }
 
     const element = children(this.getRootProps());
     return React.cloneElement(element, {});
@@ -213,12 +223,11 @@ class PasswordInput extends React.Component {
 }
 
 PasswordInput.propTypes = {
-  value: PropTypes.string,
+  defaultValue: PropTypes.string,
   render: PropTypes.func,
   children: PropTypes.func,
   onChange: PropTypes.func,
-  onStateChange: PropTypes.func,
-  visible: PropTypes.bool,
+  isVisible: PropTypes.bool,
   rules: PropTypes.arrayOf(
     PropTypes.shape({
       rule: PropTypes.oneOfType([
@@ -236,8 +245,6 @@ PasswordInput.propTypes = {
 };
 
 PasswordInput.defaultProps = {
-  onChange: () => {},
-  onStateChange: () => {},
   minLen: 0,
   maxLen: 0,
   digits: 0,

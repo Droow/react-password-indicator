@@ -1,6 +1,6 @@
 {
   "name": "react-password-indicator",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Package providing flexible yet powerful password input with fully customizable render",
   "main": "build/index.js",
   "scripts": {
@@ -8,9 +8,12 @@
     "start": "webpack --mode=production --watch",
     "build": "webpack --mode=production"
   },
+  "files": [
+    "build"
+  ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Droow/react-password-input.git"
+    "url": "git+https://github.com/Droow/react-password-indicator.git"
   },
   "keywords": [
     "react",
@@ -27,9 +30,9 @@
   "author": "Daniel Pršala (http://danielprsala.cz)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Droow/react-password-input/issues"
+    "url": "https://github.com/Droow/react-password-indicator/issues"
   },
-  "homepage": "https://github.com/Droow/react-password-input#readme",
+  "homepage": "https://github.com/Droow/react-password-indicator#readme",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
