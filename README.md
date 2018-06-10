@@ -128,7 +128,19 @@ You *have to* use this or the children to pass your custom render function. See 
 ### isVisible
 > `boolean`
 
-Can be used in controlled mode to control the visibility of password in input element. 
+Can be used in controlled mode to control the visibility of password in input element.
+
+### rules
+> `array`
+
+Array of additional custom rules in following format:
+```js
+{
+  key: 'myRuleKey', // required - each rule needs unique identification
+  rule: (value) => value.indexOf('@') > -1, // required - the validation function (has to return true or false)
+  message: 'Password is not valid for my custom rule', // optional error message
+}
+``` 
 
 ## Render Prop Function
 This is where you render whatever you want to based on the state of `react-password-indicator`.

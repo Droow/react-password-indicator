@@ -122,10 +122,11 @@ class PasswordInput extends React.Component {
    * @returns {{type: *, onChange: PasswordInput.handleInputChange}}
    */
   getInputProps = () => {
+    const { isVisible, value } = this.getState();
     return {
-      type: this.getState().isVisible ? 'text' : 'password',
+      type: isVisible ? 'text' : 'password',
       onChange: this.handleInputChange,
-      value: this.state.value,
+      value,
     }
   };
 
@@ -182,15 +183,22 @@ class PasswordInput extends React.Component {
     let progress = { current: 0, max: rulesCount, percent: 0 };
     let valid = true;
     const errors = [];
+    // Validate each rule
     this.rules.forEach((r) => {
       const { rule, inverted, ...rest } = r;
       const result = rule(value);
       if (result) {
+        // Lets increment the progress when a rule passes
         if (!inverted) {
           progress.current += 1;
           progress.percent += ruleStep;
         }
       } else {
+        /*
+         Some rules might be inverted (maximum length for example)
+         so they are passed automatically and we should decrement
+         the progress when they are not valid any more.
+        */
         if (inverted) {
           progress.current -= 1;
           progress.percent -= ruleStep;
@@ -223,6 +231,7 @@ class PasswordInput extends React.Component {
 }
 
 PasswordInput.propTypes = {
+  value: PropTypes.string,
   defaultValue: PropTypes.string,
   render: PropTypes.func,
   children: PropTypes.func,
@@ -233,8 +242,9 @@ PasswordInput.propTypes = {
       rule: PropTypes.oneOfType([
         PropTypes.func,
         PropTypes.object,
-      ]),
-      key: PropTypes.string,
+      ]).isRequired,
+      key: PropTypes.string.isRequired,
+      message: PropTypes.string,
     }),
   ),
   minLen: PropTypes.number,
