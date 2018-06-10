@@ -1,56 +1,57 @@
 # React Password Indicator
-Package providing flexible yet powerful password input with fully customizable render
+Package providing flexible yet powerful password input with fully customizable render.
 
 ## Installation
 
-`npm install --save react-password-indicator` or `yarn add react-password-indicator`
+You can install this package using `npm install --save react-password-indicator` or `yarn add react-password-indicator`.
 
 ## Usage
 
 ```jsx
-...
+import React from 'react';
 import PasswordInput from 'react-passsword-indicator';
-...
+
 // Custom error messages
 const errorMessages = {
-    minLen: (required, current) => 'Minimal password length is ${requred}`,
+    minLen: 'Password is not long enough!',
 };
 
-...
-render() {
+class App extends React.Component {
+  render() {
     return (
       <PasswordInput
-        minLen={4}
-        digits={2}
-        maxLen={10}
-        specialChars={2}
-        uppercaseChars={2}
+        minLen={4} // Optional predefined rule
+        digits={2} // Optional predefined rule
+        maxLen={10} // Optional predefined rule
+        specialChars={2} // Optional predefined rule
+        uppercaseChars={2} // Optional predefined rule
         onChange={(val, state) => console.log('Current pass', val, 'and progress', state)}
+        // Aditional custom rules
         rules={[
-            { rule: (val) => val.indexOf('@') > -1, key: 'customAtRule' }
+            { rule: (val) => val.indexOf('@') > -1, key: 'customAtRule', message: 'Your password must contain the @ char.' }
         ]}
       >
-        {({ status, progress, inputProps, progressProps, passed, isVisible, errors, toggleShowPassword, touched }) => (
+        {({ status, progress, getInputProps, getProgressProps, passed, isVisible, errors, toggleShowPassword, touched }) => (
           <div>
-            <input {...inputProps} />
+            <input {...getInputProps()} />
             <button onClick={toggleShowPassword}>{isVisible ? 'Hide' : 'Show'}</button><br />
             {touched &&
-            <div>
-              <progress {...progressProps} />
-              <p>Password is {passed ? '' : 'in'}valid!</p>
-              {errors &&
-                <ul>
-                  {errors.map((e) => <li key={e.key}>{errorMessages[e.key] || e,message}</li>)}
-                </ul>
-              }
-            </div>
+              <div>
+                <progress {...getProgressProps()} />
+                <p>Password is {passed ? '' : 'in'}valid!</p>
+                {errors &&
+                  <ul>
+                    {errors.map((e) => <li key={e.key}>{errorMessages[e.key] || e,message}</li>)}
+                  </ul>
+                }
+              </div>
             }
           </div>
         )}
       </PasswordInput>
     );
+  }
 }
-...
 ```
 
 ## Props
@@ -127,3 +128,6 @@ This method should be applied to the `progress` you render. It returns object of
 
 ## License
 MIT
+
+## Future releases
+In the future I will focus on finishing the controlled mode and adding at least 90% test coverage.
