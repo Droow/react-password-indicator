@@ -39,10 +39,22 @@ class App extends React.Component {
           onChange={(val, state) => console.log('Current pass', val, 'and progress', state)}
           // Additional custom rules
           rules={[
-              { rule: (val) => val.indexOf('@') > -1, key: 'customAtRule', message: 'Your password must contain the @ char.' }
+            {
+              rule: (val) => val.indexOf('@') > -1,
+              key: 'customAtRule',
+              message: 'Your password must contain the @ char.'
+            }
           ]}
         >
-          {({ status, progress, getInputProps, getProgressProps, passed, isVisible, errors, toggleShowPassword, touched }) => (
+          {({
+            getInputProps,
+            getProgressProps,
+            valid,
+            isVisible,
+            errors,
+            toggleShowPassword,
+            touched
+          }) => (
             <div>
               <input {...getInputProps()} />
               {/*
@@ -54,7 +66,7 @@ class App extends React.Component {
               {touched &&
                 <div>
                   <progress {...getProgressProps()} />
-                  <p>Password is {passed ? '' : 'in'}valid!</p>
+                  <p>Password is {valid ? '' : 'in'}valid!</p>
                   {errors &&
                     <ul>
                       {errors.map((e) => <li key={e.key}>{errorMessages[e.key] || e.message}</li>)}
