@@ -1,3 +1,6 @@
+[![npm version](https://badge.fury.io/js/react-password-indicator.svg)](https://badge.fury.io/js/react-password-indicator)
+[![MIT License](https://img.shields.io/npm/l/downshift.svg?style=flat-square)](https://github.com/droow/react-password-indicator/blob/master/LICENSE)
+
 # React Password Indicator
 Package providing flexible yet powerful password input with fully customizable render.
 
