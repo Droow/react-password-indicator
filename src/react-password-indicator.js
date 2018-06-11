@@ -123,10 +123,12 @@ class PasswordInput extends React.Component {
    */
   getInputProps = () => {
     const { isVisible, value } = this.getState();
+    const { name } = this.props;
     return {
       type: isVisible ? 'text' : 'password',
       onChange: this.handleInputChange,
       value,
+      name,
     }
   };
 
