@@ -42,7 +42,7 @@ class App extends React.Component {
           // Controlled mode
           // if not set the toggleShowPassword function in the render function should be used
           isVisible={this.state.visible} 
-          onChange={(val, state) => console.log('Current pass', val, 'and progress', state)}
+          onChange={(event, state) => console.log('Current pass', event.target.value, 'and progress', state)}
           // Additional custom rules
           rules={[
             {

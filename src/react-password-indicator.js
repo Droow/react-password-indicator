@@ -155,9 +155,10 @@ class PasswordInput extends React.Component {
    */
   handleInputChange = (e) => {
     const value = e.target.value;
+    const { name } = this.props;
     const newState = this.checkRules(value);
     if (this.isControlledProp('onChange')) {
-      this.props.onChange(value, newState);
+      this.props.onChange({ target: { name, value } }, newState);
     }
     this.setState({ ...newState, value, touched: true });
   };
@@ -232,6 +233,7 @@ class PasswordInput extends React.Component {
 
 PasswordInput.propTypes = {
   value: PropTypes.string,
+  name: PropTypes.string,
   defaultValue: PropTypes.string,
   render: PropTypes.func,
   children: PropTypes.func,
