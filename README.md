@@ -156,7 +156,7 @@ Name will be passed down to input and also to onChange event.
 ### defaultMessages
 > `object`
 
-You can override default messages or add messages for your custom rules here. If you dont supply message for your custom rule here, then you have to provide the message in rule itself `({ key: 'xyz', message: 'Here', ... })`.
+You can override default messages or add messages for your custom rules here. If you dont supply message for your custom rule here, then you have to provide the message in rule itself (see [rules](#rules) prop).
 
 Should have following shape:
 ```js
@@ -166,7 +166,7 @@ Should have following shape:
   // If you dont need the value, string is also acceptable
   maxLen: 'Password is too long!',
   // Message for custom rule
-  myCustomRule: 'Your custom message here',
+  myRuleKey: 'Your custom message here',
 }
 ```
 
@@ -178,7 +178,8 @@ Array of additional custom rules in following format:
 {
   key: 'myRuleKey', // required - each rule needs unique identification
   rule: (value) => value.indexOf('@') > -1, // required - the validation function (has to return true or false)
-  message: 'Password is not valid for my custom rule', // optional error message
+  // optional error message - required if you did not set the default message
+  message: 'Password is not valid for my custom rule',
 }
 ``` 
 
