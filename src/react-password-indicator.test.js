@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 import PasswordInput from '.';
 
@@ -63,10 +63,10 @@ describe('props', () => {
             <input {...getInputProps()} />
           </div>
         }
-      </PasswordInput>);
+      </PasswordInput>
+    );
 
     expect(result.find('input').prop('type')).toEqual('password');
-    //result.setState({ isVisible: true });
     result.find('a').simulate('click');
     result.update();
     expect(result.find('input').prop('type')).toEqual('text');
@@ -76,7 +76,7 @@ describe('props', () => {
 
 describe('handlers', () => {
   test('should register input change and change the state properly', () => {
-    const { Component, onChangeSpy, renderSpy } = setup();
+    const { Component, onChangeSpy } = setup(true);
     const result = shallow(<Component/>).dive();
     const input = result.find('input');
     const testValue = 'askljdfh';
@@ -90,6 +90,30 @@ describe('handlers', () => {
 });
 
 describe('validation', () => {
+  let props;
+  let mountedInput;
+  const Input = () => {
+    if (!mountedInput) {
+      mountedInput = mount(
+        <PasswordInput {...props} />
+      );
+    }
+    return mountedInput;
+  };
+
+  beforeEach(() => {
+    props = {
+      render: ({ getProgressProps, getInputProps }) => (
+        <div>
+          <input {...getInputProps()} />
+          <progress {...getProgressProps()} />
+        </div>
+      ),
+      minLen: undefined,
+    };
+    mountedInput = undefined;
+  });
+
   test('should check for digits', () => {
     const { Component } = setup();
     const compo = shallow(
@@ -159,7 +183,6 @@ describe('validation', () => {
     const compo = shallow(
       <Component maxLen={20}/>
     ).dive();
-
     const input = compo.find('input');
     const passValue = 'a123sd!.@AAA';
     const errorValue = 'adfsasasdkfjhaskjdfgaskjfg';
@@ -171,37 +194,59 @@ describe('validation', () => {
   });
 });
 
-/*describe('controlled mode', () => {
-  test('should toggle password visibility', () => {
-    const { Component } = setup();
-    const result = shallow(<Component>({ toggleShowPassword</Component>)
-    expect(result.find('input').prop('type')).toEqual('password');
-    result.setState({ isVisible: true });
-    result.update();
+describe('controlled mode', () => {
+  test('should take the visibility value from props instead of state', () => {
+    const result = shallow(
+      <PasswordInput isVisible={true}>
+        {({toggleShowPassword, getInputProps}) =>
+          <div>
+            <a onClick={toggleShowPassword} />
+            <input {...getInputProps()} />
+          </div>
+        }
+      </PasswordInput>
+    );
+
+    expect(result.find('input').prop('type')).toEqual('text');
+    result.find('a').simulate('click');
     expect(result.find('input').prop('type')).toEqual('text');
   });
-});*/
+/*
+  test('should take the value from props instead of state', () => {
+    const onChangeSpy = jest.fn(() => null);
+    const result = shallow(
+      <PasswordInput onChange={onChangeSpy} >
+        {({toggleShowPassword, getInputProps}) =>
+          <div>
+            <a onClick={toggleShowPassword} />
+            <input {...getInputProps()} />
+          </div>
+        }
+      </PasswordInput>
+    );
 
-function setup() {
+    result.find('input').simulate('change', { target: { value: 'someval' } });
+    expect(onChangeSpy).toHaveBeenCalledTimes(1);
+  });*/
+});
+
+function setup(withSpy = false) {
   /* eslint-disable react/jsx-closing-bracket-location */
-  const renderSpy = // jest.fn(
-    ({ getProgressProps, getInputProps }) => (
-      <div>
-        <input {...getInputProps()} />
-        <progress {...getProgressProps()} />
-      </div>
-    //),
+  const render = ({ getProgressProps, getInputProps }) => (
+    <div>
+      <input {...getInputProps()} />
+      <progress {...getProgressProps()} />
+    </div>
   );
 
   const onChangeSpy = jest.fn();
 
   function BasicPasswordInput(props) {
-    return <PasswordInput {...props} onChange={onChangeSpy} render={renderSpy} />
+    return <PasswordInput {...props} onChange={withSpy ? onChangeSpy : undefined} render={render} />
   }
 
   return {
     Component: BasicPasswordInput,
-    renderSpy,
     onChangeSpy,
   }
 }
