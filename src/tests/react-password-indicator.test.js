@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
 
-import PasswordInput from '.';
+import PasswordInput from '../';
 
 describe('rendering', () => {
   test('should render a div via render prop', () => {
@@ -20,34 +20,9 @@ describe('rendering', () => {
 });
 
 describe('props', () => {
-  /*test('should add all rules', () => {
-    const { Component } = setup();
-    const result = shallow(
-      <PasswordInput minLen={2} maxLen={3} specialChars={4} uppercaseChars={5} digits={6} render={() => <div />}/>
-    );
-    const rules = result.instance().rules;
-
-    expect(rules).toContainEqual(
-      expect.objectContaining({ key: 'minLen', message: expect.anything(), rule: expect.anything() })
-    );
-    expect(rules).toContainEqual(
-      expect.objectContaining({ key: 'maxLen', message: expect.anything(), rule: expect.anything() })
-    );
-    expect(rules).toContainEqual(
-      expect.objectContaining({ key: 'specialChars', message: expect.anything(), rule: expect.anything() })
-    );
-    expect(rules).toContainEqual(
-      expect.objectContaining({ key: 'uppercaseChars', message: expect.anything(), rule: expect.anything() })
-    );
-    expect(rules).toContainEqual(
-      expect.objectContaining({ key: 'digits', message: expect.anything(), rule: expect.anything() })
-    );
-    expect(rules.length).toBe(5);
-  });*/
-
   test('should attach onChange, value and type props to input element', () => {
     const { Component } = setup();
-    const result = shallow(<Component/>).dive();
+    const result = shallow(<Component />).dive();
     const input = result.find('input');
     expect(typeof input.prop('onChange')).toBe('function');
     expect(input.prop('value')).toEqual('');
@@ -55,29 +30,25 @@ describe('props', () => {
   });
 
   test('should change input type when toggled', () => {
-    const result = shallow(
-      <PasswordInput>
-        {({toggleShowPassword, getInputProps}) =>
-          <div>
-            <a onClick={toggleShowPassword} />
-            <input {...getInputProps()} />
-          </div>
-        }
-      </PasswordInput>
-    );
+    const result = shallow(<PasswordInput>
+      {({ toggleShowPassword, getInputProps }) =>
+        (<div>
+          <a onClick={toggleShowPassword} />
+          <input {...getInputProps()} />
+        </div>)
+      }
+    </PasswordInput>);
 
     expect(result.find('input').prop('type')).toEqual('password');
     result.find('a').simulate('click');
-    result.update();
     expect(result.find('input').prop('type')).toEqual('text');
   });
-
 });
 
 describe('handlers', () => {
   test('should register input change and change the state properly', () => {
     const { Component, onChangeSpy } = setup(true);
-    const result = shallow(<Component/>).dive();
+    const result = shallow(<Component />).dive();
     const input = result.find('input');
     const testValue = 'askljdfh';
 
@@ -94,9 +65,7 @@ describe('validation', () => {
   let mountedInput;
   const Input = () => {
     if (!mountedInput) {
-      mountedInput = mount(
-        <PasswordInput {...props} />
-      );
+      mountedInput = mount(<PasswordInput {...props} />);
     }
     return mountedInput;
   };
@@ -116,9 +85,7 @@ describe('validation', () => {
 
   test('should check for digits', () => {
     const { Component } = setup();
-    const compo = shallow(
-      <Component digits={3}/>
-    ).dive();
+    const compo = shallow(<Component digits={3} />).dive();
 
     const input = compo.find('input');
     const passValue = 'ask2lj3d5fh';
@@ -132,9 +99,7 @@ describe('validation', () => {
 
   test('should check for minimal length', () => {
     const { Component } = setup();
-    const compo = shallow(
-      <Component minLen={8}/>
-    ).dive();
+    const compo = shallow(<Component minLen={8} />).dive();
 
     const input = compo.find('input');
     const passValue = '123456789';
@@ -148,9 +113,7 @@ describe('validation', () => {
 
   test('should check for special chars', () => {
     const { Component } = setup();
-    const compo = shallow(
-      <Component specialChars={3}/>
-    ).dive();
+    const compo = shallow(<Component specialChars={3} />).dive();
 
     const input = compo.find('input');
     const passValue = 'a123sd!.@?';
@@ -164,9 +127,7 @@ describe('validation', () => {
 
   test('should check for uppercase chars', () => {
     const { Component } = setup();
-    const compo = shallow(
-      <Component uppercaseChars={3}/>
-    ).dive();
+    const compo = shallow(<Component uppercaseChars={3} />).dive();
 
     const input = compo.find('input');
     const passValue = 'a123sd!.@AAA';
@@ -180,9 +141,7 @@ describe('validation', () => {
 
   test('should check for max length', () => {
     const { Component } = setup();
-    const compo = shallow(
-      <Component maxLen={20}/>
-    ).dive();
+    const compo = shallow(<Component maxLen={20} />).dive();
     const input = compo.find('input');
     const passValue = 'a123sd!.@AAA';
     const errorValue = 'adfsasasdkfjhaskjdfgaskjfg';
@@ -192,20 +151,39 @@ describe('validation', () => {
     input.simulate('change', { target: { value: errorValue } });
     expect(compo.state().valid).toBe(false);
   });
+
+  test('should not allow two rules with identical key', () => {
+    const { Component } = setup();
+    const original = console.error;
+
+    console.error = jest.fn();
+    shallow(<Component maxLen={20} rules={[{ key: 'maxLen', rule: () => true, message: '' }]}/>).dive();
+    expect(console.error).toHaveBeenCalledTimes(1);
+    console.error = original;
+  });
+
+  test('should update rules if new rule is dynamically added', () => {
+    const { Component } = setup();
+    const result = shallow(<Component rules={[]}/>).dive();
+    const inst = result.instance();
+    expect(inst.rules.length).toBe(0);
+    result.setProps({ rules: []});
+    expect(inst.rules.length).toBe(0);
+    result.setProps({ rules: [{ key: 'testRule', rule: () => true, message: ''}]});
+    expect(inst.rules.length).toBe(1);
+  });
 });
 
 describe('controlled mode', () => {
   test('should take the visibility value from props instead of state', () => {
-    const result = shallow(
-      <PasswordInput isVisible={true}>
-        {({toggleShowPassword, getInputProps}) =>
-          <div>
-            <a onClick={toggleShowPassword} />
-            <input {...getInputProps()} />
-          </div>
-        }
-      </PasswordInput>
-    );
+    const result = shallow(<PasswordInput isVisible>
+      {({ toggleShowPassword, getInputProps }) =>
+        (<div>
+          <a onClick={toggleShowPassword} />
+          <input {...getInputProps()} />
+        </div>)
+      }
+    </PasswordInput>);
 
     expect(result.find('input').prop('type')).toEqual('text');
     result.find('a').simulate('click');
@@ -227,7 +205,7 @@ describe('controlled mode', () => {
 
     result.find('input').simulate('change', { target: { value: 'someval' } });
     expect(onChangeSpy).toHaveBeenCalledTimes(1);
-  });*/
+  }); */
 });
 
 function setup(withSpy = false) {
@@ -242,11 +220,11 @@ function setup(withSpy = false) {
   const onChangeSpy = jest.fn();
 
   function BasicPasswordInput(props) {
-    return <PasswordInput {...props} onChange={withSpy ? onChangeSpy : undefined} render={render} />
+    return <PasswordInput {...props} onChange={withSpy ? onChangeSpy : undefined} render={render} />;
   }
 
   return {
     Component: BasicPasswordInput,
     onChangeSpy,
-  }
+  };
 }

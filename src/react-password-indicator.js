@@ -2,12 +2,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 class PasswordInput extends React.Component {
+  /**
+   * Appends new rule to a rule set but only if rule key is unique
+   *
+   * @param rules
+   * @param rule
+   */
+  static appendRule(rules, rule) {
+    const sameRule = rules && rules.filter(r => r.key === rule.key);
+    if (sameRule && sameRule.length > 0) {
+      console.error(`react-password-indicator: Rule conflict with key "${rule.key}". The new rule is ignored.`);
+    } else {
+      rules.push(rule);
+    }
+  }
 
   constructor(props) {
     super(props);
 
     this.state = {
-      value: props.defaultValue || '',
+      value: props.defaultValue, // eslint-disable-line
       touched: false,
       valid: false,
       progress: { current: 0 },
@@ -15,7 +29,14 @@ class PasswordInput extends React.Component {
       isVisible: false,
     };
 
-    this.rules = this.getRules();
+    this.rules = this.getRules(props.rules);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // TODO: Length can be the same but the keys not so check for that too
+    if (nextProps.rules.length !== this.props.rules.length) {
+      this.rules = this.getRules(nextProps.rules);
+    }
   }
 
   /**
@@ -23,21 +44,22 @@ class PasswordInput extends React.Component {
    *
    * @returns {Array}
    */
-  getRules() {
-    const { minLen, maxLen, digits, uppercaseChars, specialChars } = this.props;
-    const rules = this.props.rules;
+  getRules(rules) {
+    const {
+      minLen, maxLen, digits, uppercaseChars, specialChars,
+    } = this.props;
 
     if (minLen !== 0) {
-      rules.push({
-        rule: (val) => val.length >= minLen,
+      PasswordInput.appendRule(rules, {
+        rule: val => val.length >= minLen,
         key: 'minLen',
         message: `Minimal length is ${minLen}`,
       });
     }
 
     if (maxLen !== 0) {
-      rules.push({
-        rule: (val) => val.length <= maxLen,
+      PasswordInput.appendRule(rules, {
+        rule: val => val.length <= maxLen,
         key: 'maxLen',
         message: `Maximal length is ${maxLen}`,
         inverted: true,
@@ -45,7 +67,7 @@ class PasswordInput extends React.Component {
     }
 
     if (uppercaseChars !== 0) {
-      rules.push({
+      PasswordInput.appendRule(rules, {
         rule: (val) => {
           const match = val.match(/[A-Z]/g);
           return match && match.length >= uppercaseChars;
@@ -56,9 +78,9 @@ class PasswordInput extends React.Component {
     }
 
     if (specialChars !== 0) {
-      rules.push({
+      PasswordInput.appendRule(rules, {
         rule: (val) => {
-          const match = val.match(/[\?!@#\$%\^\&*\)\(\+=\.\_\-\}\{,\"\'\[\]]/g);
+          const match = val.match(/[\?!@#\$%\^\&*\)\(\+=\.\_\-\}\{,\"\'\[\]]/g); // eslint-disable-line
           return match && match.length >= specialChars;
         },
         key: 'specialChars',
@@ -67,7 +89,7 @@ class PasswordInput extends React.Component {
     }
 
     if (digits !== 0) {
-      rules.push({
+      PasswordInput.appendRule(rules, {
         rule: (val) => {
           const match = val.match(/[0-9]/g);
           return match && match.length >= digits;
@@ -97,23 +119,11 @@ class PasswordInput extends React.Component {
    */
   getState(stateToMerge = this.state) {
     return Object.keys(stateToMerge).reduce((state, key) => {
-      state[key] = this.isControlledProp(key)
+      state[key] = this.isControlledProp(key) // eslint-disable-line
         ? this.props[key]
         : stateToMerge[key];
-      return state
+      return state;
     }, {});
-  }
-
-  /**
-   * This determines whether a prop is a "controlled prop" meaning it is
-   * state which is controlled by the outside of this component rather
-   * than within this component.
-   *
-   * @param {String} key the key to check
-   * @returns {Boolean} whether it is a controlled controlled prop
-   */
-  isControlledProp(key) {
-    return this.props[key] !== undefined;
   }
 
   /**
@@ -129,9 +139,17 @@ class PasswordInput extends React.Component {
       onChange: this.handleInputChange,
       value,
       name,
-    }
+    };
   };
 
+  /**
+   * Gets props which are intended for the progress element.
+   *
+   * @returns {{
+   *  value: (number|PasswordInput.state.progress.current),
+   *  max: PasswordInput.state.progress.max
+   * }}
+   */
   getProgressProps = () => {
     const { current, max } = this.state.progress;
     return { value: current, max };
@@ -140,15 +158,45 @@ class PasswordInput extends React.Component {
   /**
    * Gets all the props that are passed to the render.
    *
-   * @returns {{inputProps: {type: *, onChange: PasswordInput.handleInputChange}, toggleShowPassword: PasswordInput.handleToggleShowPassword}}
+   * @returns {{
+   *  getInputProps: (function(): {
+   *    type: string,
+   *    onChange: PasswordInput.handleInputChange,
+   *    value: Object.value,
+   *    name: PasswordInput.props.name
+   *  }),
+   *  getProgressProps: (function(): {
+   *    value: (number|PasswordInput.state.progress.current),
+   *    max: PasswordInput.state.progress.max
+   *  }),
+   *  toggleShowPassword: PasswordInput.handleToggleShowPassword
+   * }}
    */
   getRootProps() {
+    const {
+      touched, errors, valid, isVisible,
+    } = this.state;
     return {
       getInputProps: this.getInputProps,
       getProgressProps: this.getProgressProps,
       toggleShowPassword: this.handleToggleShowPassword,
-      ...this.getState(),
+      touched,
+      errors,
+      valid,
+      isVisible,
     };
+  }
+
+  /**
+   * This determines whether a prop is a "controlled prop" meaning it is
+   * state which is controlled by the outside of this component rather
+   * than within this component.
+   *
+   * @param {String} key the key to check
+   * @returns {Boolean} whether it is a controlled controlled prop
+   */
+  isControlledProp(key) {
+    return this.props[key] !== undefined;
   }
 
   /**
@@ -156,12 +204,12 @@ class PasswordInput extends React.Component {
    * @param e
    */
   handleInputChange = (e) => {
-    const value = e.target.value;
+    const { value } = e.target;
     const newState = this.checkRules(value);
     if (this.isControlledProp('onChange')) {
       this.props.onChange(value, newState);
     }
-    this.setState({ ...newState, value, touched: true });
+    this.setState({ ...newState, value, touched: true }); // eslint-disable-line
   };
 
   /**
@@ -169,7 +217,7 @@ class PasswordInput extends React.Component {
    */
   handleToggleShowPassword = () => {
     if (!this.isControlledProp('isVisible')) {
-      this.setState((state) => ({ isVisible: !state.isVisible }));
+      this.setState(state => ({ isVisible: !state.isVisible }));
     }
   };
 
@@ -177,12 +225,20 @@ class PasswordInput extends React.Component {
    * Validates current password against all supplied rules.
    *
    * @param value
-   * @returns {{progress: {current: number, max: number, percent: number}, valid: boolean, errors: Array}}
+   * @returns {{
+   *  progress: {
+   *    current: number,
+   *    max: number,
+   *    percent: number
+   *  },
+   *  valid: boolean,
+   *  errors: Array
+   * }}
    */
   checkRules(value) {
-    const rulesCount = this.rules.filter((r) => !r.inverted).length;
+    const rulesCount = this.rules.filter(r => !r.inverted).length;
     const ruleStep = 100 / rulesCount;
-    let progress = { current: 0, max: rulesCount, percent: 0 };
+    const progress = { current: 0, max: rulesCount, percent: 0 };
     let valid = true;
     const errors = [];
     // Validate each rule
@@ -214,7 +270,7 @@ class PasswordInput extends React.Component {
       progress,
       valid,
       errors,
-    }
+    };
   }
 
   /**
@@ -233,23 +289,21 @@ class PasswordInput extends React.Component {
 }
 
 PasswordInput.propTypes = {
-  value: PropTypes.string,
+  value: PropTypes.string, // eslint-disable-line
   name: PropTypes.string,
   defaultValue: PropTypes.string,
   render: PropTypes.func,
   children: PropTypes.func,
   onChange: PropTypes.func,
-  isVisible: PropTypes.bool,
-  rules: PropTypes.arrayOf(
-    PropTypes.shape({
-      rule: PropTypes.oneOfType([
-        PropTypes.func,
-        PropTypes.object,
-      ]).isRequired,
-      key: PropTypes.string.isRequired,
-      message: PropTypes.string,
-    }),
-  ),
+  isVisible: PropTypes.bool, // eslint-disable-line
+  rules: PropTypes.arrayOf(PropTypes.shape({
+    rule: PropTypes.oneOfType([
+      PropTypes.func,
+      PropTypes.object,
+    ]).isRequired,
+    key: PropTypes.string.isRequired,
+    message: PropTypes.string,
+  })),
   minLen: PropTypes.number,
   maxLen: PropTypes.number,
   digits: PropTypes.number,
@@ -264,6 +318,13 @@ PasswordInput.defaultProps = {
   specialChars: 0,
   uppercaseChars: 0,
   rules: [],
+  defaultValue: '',
+  value: undefined,
+  name: undefined,
+  onChange: undefined,
+  isVisible: undefined,
+  render: undefined,
+  children: undefined,
 };
 
 export default PasswordInput;

@@ -1,10 +1,12 @@
 {
   "name": "react-password-indicator",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Package providing flexible yet powerful password input with fully customizable render",
   "main": "build/index.js",
   "scripts": {
-    "test": "jest",
+    "pretest": "eslint --fix src",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
     "start": "webpack --mode=production --watch",
     "build": "webpack --mode=production"
   },
@@ -36,6 +38,7 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.3",
     "babel-jest": "^23.0.1",
     "babel-loader": "^7.1.4",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
