@@ -7,10 +7,17 @@ Package providing flexible yet powerful password input with fully customizable r
 
 ## Installation
 
-You can install this package using `npm install --save react-password-indicator` or `yarn add react-password-indicator`.
+You can install this package using one of these commands:
+> `npm install --save react-password-indicator`
+
+> `yarn add react-password-indicator`
+
+This package also depends on `react` and `prop-types`. Please make sure you have those installed as well.
 
 ## Usage
-You can see the demo here: [![Edit o772lmq6](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/o772lmq6)
+You can see the demo here:
+
+[![Edit o772lmq6](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/o772lmq6)
 
 Basic usage:
 ```jsx
