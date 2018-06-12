@@ -131,6 +131,16 @@ You *have to* use this or the children to pass your custom render function. See 
 
 Can be used in controlled mode to control the visibility of password in input element.
 
+### value
+> `string`
+
+Can be used in controlled mode.
+
+### name
+> `string`
+
+Name will be passed down to input and also to onChange event.
+
 ### rules
 > `array`
 
