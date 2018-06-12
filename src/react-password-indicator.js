@@ -157,14 +157,9 @@ class PasswordInput extends React.Component {
    */
   handleInputChange = (e) => {
     const value = e.target.value;
-    const { name } = this.props;
-    const myEvent = {...e};
-    if (!myEvent.target.name) {
-      myEvent.target.name = name;
-    }
     const newState = this.checkRules(value);
     if (this.isControlledProp('onChange')) {
-      this.props.onChange(e, newState);
+      this.props.onChange(value, newState);
     }
     this.setState({ ...newState, value, touched: true });
   };
