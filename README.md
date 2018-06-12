@@ -28,6 +28,8 @@ import PasswordInput from 'react-passsword-indicator';
 // Custom error messages
 const errorMessages = {
     minLen: 'Password is not long enough!',
+    maxLen: (val) => `Password exceeded the maximum length of ${val}`,
+    customAtRule: 'Missing @! This message will be overriden.',
 };
 
 class App extends React.Component {
@@ -47,6 +49,7 @@ class App extends React.Component {
           maxLen={10} // Optional predefined rule
           specialChars={2} // Optional predefined rule
           uppercaseChars={2} // Optional predefined rule
+          defaultMessages={errorMessages}
           // Controlled mode
           // if not set the toggleShowPassword function in the render function should be used
           isVisible={this.state.visible} 
@@ -56,7 +59,8 @@ class App extends React.Component {
             {
               rule: (val) => val.indexOf('@') > -1,
               key: 'customAtRule',
-              message: 'Your password must contain the @ char.'
+              // override the default message
+              message:'Your password must contain the @ char.',
             }
           ]}
         >
@@ -83,7 +87,7 @@ class App extends React.Component {
                   <p>Password is {valid ? '' : 'in'}valid!</p>
                   {errors &&
                     <ul>
-                      {errors.map((e) => <li key={e.key}>{errorMessages[e.key] || e.message}</li>)}
+                      {errors.map((e) => <li key={e.key}>{e.message}</li>)}
                     </ul>
                   }
                 </div>
@@ -149,6 +153,23 @@ Can be used in controlled mode.
 
 Name will be passed down to input and also to onChange event.
 
+### defaultMessages
+> `object`
+
+You can override default messages or add messages for your custom rules here. If you dont supply message for your custom rule here, then you have to provide the message in rule itself `({ key: 'xyz', message: 'Here', ... })`.
+
+Should have following shape:
+```js
+{
+   // Override default message for predefined rule
+  minLen: (val) => `Minimal password length id ${val}`,
+  // If you dont need the value, string is also acceptable
+  maxLen: 'Password is too long!',
+  // Message for custom rule
+  myCustomRule: 'Your custom message here',
+}
+```
+
 ### rules
 > `array`
 
@@ -193,6 +214,3 @@ This method should be applied to the `progress` you render. It returns object of
 
 ## License
 MIT
-
-## Future releases
-In the future I will focus on finishing the controlled mode and adding at least 90% test coverage.

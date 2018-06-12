@@ -171,6 +171,8 @@ describe('validation', () => {
     expect(inst.rules.length).toBe(0);
     result.setProps({ rules: [{ key: 'testRule', rule: () => true, message: ''}]});
     expect(inst.rules.length).toBe(1);
+    result.setProps({ rules: [{ key: 'testRule2', rule: () => true, message: ''}]});
+    expect(inst.rules.length).toBe(1);
   });
 });
 

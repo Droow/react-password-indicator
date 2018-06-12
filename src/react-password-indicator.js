@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 class PasswordInput extends React.Component {
   /**
-   * Appends new rule to a rule set but only if rule key is unique
+   * Appends new rule to a rule set but only if rule key is unique.
    *
    * @param rules
    * @param rule
@@ -17,6 +17,11 @@ class PasswordInput extends React.Component {
     }
   }
 
+  /**
+   * Setups rules from props and initializes state.
+   *
+   * @param props
+   */
   constructor(props) {
     super(props);
 
@@ -29,14 +34,69 @@ class PasswordInput extends React.Component {
       isVisible: false,
     };
 
+    this.errorMessages = PasswordInput.getDefaultMessages(props.defaultMessages);
     this.rules = this.getRules(props.rules);
   }
 
+  /**
+   * Makes sure that rules can be dynamically change.
+   *
+   * @param nextProps
+   */
   componentWillReceiveProps(nextProps) {
-    // TODO: Length can be the same but the keys not so check for that too
-    if (nextProps.rules.length !== this.props.rules.length) {
-      this.rules = this.getRules(nextProps.rules);
+    // If any rules exists
+    if (nextProps.rules.length > 0 || this.props.rules.length > 0) {
+      const ruleKeys = this.props.rules.map(r => r.key);
+      const nextRuleKeys = nextProps.rules.map(r => r.key);
+
+      // If new rules are the same length check the keys...
+      if (nextRuleKeys.length === ruleKeys.length) {
+        const remaining = ruleKeys.filter(r => !nextRuleKeys.includes(r));
+        const nextRemaining = nextRuleKeys.filter(r => !ruleKeys.includes(r));
+
+        // If any rule has been added or removed then setup new rules
+        if (remaining.length > 0 || nextRemaining.length > 0) {
+          this.rules = this.getRules(nextProps.rules);
+        }
+      } else { // ...otherwise set new rules
+        this.rules = this.getRules(nextProps.rules);
+      }
     }
+  }
+
+  /**
+   *
+   * @param key
+   * @param value
+   * @param message
+   * @param rest
+   * @returns {{key: *, value: undefined, message: string}}
+   */
+  setupRule({
+    key, value = undefined, message = undefined, ...rest
+  }) {
+    let m = `Missing message for rule ${key}`;
+    const helper = typeof this.errorMessages[key];
+    if (message) {
+      const messageHelper = typeof message;
+      if (messageHelper === 'function') {
+        m = message(value);
+      } else if (messageHelper === 'string') {
+        m = message;
+      }
+    } else if (helper !== 'undefined') {
+      if (helper === 'function') {
+        m = this.errorMessages[key](value);
+      } else if (helper === 'string') {
+        m = this.errorMessages[key];
+      }
+    }
+    return {
+      ...rest,
+      key,
+      value,
+      message: m,
+    };
   }
 
   /**
@@ -44,59 +104,62 @@ class PasswordInput extends React.Component {
    *
    * @returns {Array}
    */
-  getRules(rules) {
+  getRules(additionalRules) {
     const {
       minLen, maxLen, digits, uppercaseChars, specialChars,
     } = this.props;
 
+    const rules = [];
+    additionalRules.forEach(r => rules.push(this.setupRule(r)));
+
     if (minLen !== 0) {
-      PasswordInput.appendRule(rules, {
+      PasswordInput.appendRule(rules, this.setupRule({
         rule: val => val.length >= minLen,
         key: 'minLen',
-        message: `Minimal length is ${minLen}`,
-      });
+        value: minLen,
+      }));
     }
 
     if (maxLen !== 0) {
-      PasswordInput.appendRule(rules, {
+      PasswordInput.appendRule(rules, this.setupRule({
         rule: val => val.length <= maxLen,
         key: 'maxLen',
-        message: `Maximal length is ${maxLen}`,
+        value: maxLen,
         inverted: true,
-      });
+      }));
     }
 
     if (uppercaseChars !== 0) {
-      PasswordInput.appendRule(rules, {
+      PasswordInput.appendRule(rules, this.setupRule({
         rule: (val) => {
           const match = val.match(/[A-Z]/g);
           return match && match.length >= uppercaseChars;
         },
         key: 'uppercaseChars',
-        message: `Requires at least ${uppercaseChars} uppercase characters`,
-      });
+        value: uppercaseChars,
+      }));
     }
 
     if (specialChars !== 0) {
-      PasswordInput.appendRule(rules, {
+      PasswordInput.appendRule(rules, this.setupRule({
         rule: (val) => {
           const match = val.match(/[\?!@#\$%\^\&*\)\(\+=\.\_\-\}\{,\"\'\[\]]/g); // eslint-disable-line
           return match && match.length >= specialChars;
         },
         key: 'specialChars',
-        message: `Requires at least ${specialChars} special characters`,
-      });
+        value: specialChars,
+      }));
     }
 
     if (digits !== 0) {
-      PasswordInput.appendRule(rules, {
+      PasswordInput.appendRule(rules, this.setupRule({
         rule: (val) => {
           const match = val.match(/[0-9]/g);
           return match && match.length >= digits;
         },
         key: 'digits',
-        message: `Requires at least ${digits} digits`,
-      });
+        value: digits,
+      }));
     }
 
     return rules;
@@ -185,6 +248,24 @@ class PasswordInput extends React.Component {
       valid,
       isVisible,
     };
+  }
+
+  static getDefaultMessages(provided) {
+    const defaultMessages = {
+      minLen: val => `Minimal length is ${val}`,
+      maxLen: val => `Maximal length is ${val}`,
+      digits: val => `Requires at least ${val} digits`,
+      uppercaseChars: val =>
+        `Requires at least ${val} uppercase characters`,
+      specialChars: val =>
+        `Requires at least ${val} special characters`,
+    };
+
+    if (Object.keys(provided).length > 0) {
+      Object.entries(provided).forEach(([key, cb]) => { defaultMessages[key] = cb; });
+    }
+
+    return defaultMessages;
   }
 
   /**
@@ -289,13 +370,15 @@ class PasswordInput extends React.Component {
 }
 
 PasswordInput.propTypes = {
-  value: PropTypes.string, // eslint-disable-line
   name: PropTypes.string,
   defaultValue: PropTypes.string,
+  defaultMessages: PropTypes.objectOf(PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.string,
+  ])),
   render: PropTypes.func,
   children: PropTypes.func,
   onChange: PropTypes.func,
-  isVisible: PropTypes.bool, // eslint-disable-line
   rules: PropTypes.arrayOf(PropTypes.shape({
     rule: PropTypes.oneOfType([
       PropTypes.func,
@@ -309,6 +392,10 @@ PasswordInput.propTypes = {
   digits: PropTypes.number,
   specialChars: PropTypes.number,
   uppercaseChars: PropTypes.number,
+  // These props are not unused, just eslint not recognizing them
+  // because we are accessing them through getState method
+  value: PropTypes.string, // eslint-disable-line
+  isVisible: PropTypes.bool, // eslint-disable-line
 };
 
 PasswordInput.defaultProps = {
@@ -319,6 +406,9 @@ PasswordInput.defaultProps = {
   uppercaseChars: 0,
   rules: [],
   defaultValue: '',
+  defaultMessages: {},
+  // We need these props to be undefined
+  // in order to check if they are controlled or not
   value: undefined,
   name: undefined,
   onChange: undefined,
