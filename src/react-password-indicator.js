@@ -385,7 +385,10 @@ PasswordInput.propTypes = {
       PropTypes.object,
     ]).isRequired,
     key: PropTypes.string.isRequired,
-    message: PropTypes.string,
+    message: PropTypes.oneOfType([
+      PropTypes.func,
+      PropTypes.string,
+    ]),
   })),
   minLen: PropTypes.number,
   maxLen: PropTypes.number,

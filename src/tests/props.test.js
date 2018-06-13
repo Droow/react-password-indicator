@@ -57,6 +57,8 @@ describe('props', () => {
     expect(inst.rules.length).toBe(1);
     compo.setProps({ rules: [{ key: 'testRule2', rule: () => true, message: ''}]});
     expect(inst.rules.length).toBe(1);
+    compo.setProps({ rules: [{ key: 'testRule2', rule: () => true, message: ''}]});
+    expect(inst.rules.length).toBe(1);
     compo.setProps({ rules: []});
     expect(inst.rules.length).toBe(0);
   });
