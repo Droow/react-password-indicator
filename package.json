@@ -1,6 +1,6 @@
 {
   "name": "react-password-indicator",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Package providing flexible yet powerful password input with fully customizable render",
   "main": "build/index.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "start": "webpack --mode=production --watch",
-    "build": "webpack --mode=production"
+    "build": "webpack --mode=production",
+    "docs": "documentation build  src/** -f html -o docs -g"
   },
   "files": [
     "build"
@@ -55,7 +56,6 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.9.1",
     "jest": "^23.1.0",
-    "prop-types": "^15.6.1",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
     "react-test-renderer": "^16.4.0",
@@ -63,8 +63,10 @@
     "webpack-cli": "^3.0.3"
   },
   "peerDependencies": {
-    "prop-types": "^15.6.1",
-    "react": "^16.4.0"
+    "react": ">= 0.14.0 < 17.0.0-0"
+  },
+  "dependencies": {
+    "prop-types": "^15.6.1"
   },
   "jest": {
     "setupTestFrameworkScriptFile": "./jest.setup.js",

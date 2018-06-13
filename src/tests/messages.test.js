@@ -59,12 +59,12 @@ describe('messages', () => {
       ],
     });
     const rules = result.instance().rules;
-    expect(rules.filter((r) => r.key === 'minLen')[0].message).toEqual('Min 10');
-    expect(rules.filter((r) => r.key === 'maxLen')[0].message).toEqual('Missing message for rule maxLen');
-    expect(rules.filter((r) => r.key === 'myCustomRule')[0].message).toEqual('My Message');
-    expect(rules.filter((r) => r.key === 'myCustomRule2')[0].message).toEqual('2');
-    expect(rules.filter((r) => r.key === 'myCustomRule3')[0].message).toEqual('string');
-    expect(rules.filter((r) => r.key === 'myCustomRuleNoMessage')[0].message).toEqual('Missing message for rule myCustomRuleNoMessage');
-    expect(rules.filter((r) => r.key === 'myCustomRuleInvalidMessage')[0].message).toEqual('Missing message for rule myCustomRuleInvalidMessage');
+    expect(rules.find((r) => r.key === 'minLen').message).toEqual('Min 10');
+    expect(rules.find((r) => r.key === 'maxLen').message).toEqual('Maximal length is 20');
+    expect(rules.find((r) => r.key === 'myCustomRule').message).toEqual('My Message');
+    expect(rules.find((r) => r.key === 'myCustomRule2').message).toEqual('2');
+    expect(rules.find((r) => r.key === 'myCustomRule3').message).toEqual('string');
+    expect(rules.find((r) => r.key === 'myCustomRuleNoMessage').message).toEqual('Missing message for rule myCustomRuleNoMessage');
+    expect(rules.find((r) => r.key === 'myCustomRuleInvalidMessage').message).toEqual('Missing message for rule myCustomRuleInvalidMessage');
   });
 });

@@ -65,32 +65,27 @@ class PasswordInput extends React.Component {
   }
 
   /**
+   * Setups rule message.
    *
-   * @param key
-   * @param value
-   * @param message
-   * @param rest
-   * @returns {{key: *, value: undefined, message: string}}
+   * @param {Object} rule
+   * @param {string} rule.key Unique key of the rule
+   * @param {string|number} rule.value
+   * @param {string} rule.message Rule error message
+   * @param {Object} rule.rest
+   * @returns {{key: string, value: undefined, message: string}}
    */
   setupRule({
     key, value = undefined, message = undefined, ...rest
   }) {
-    let m = `Missing message for rule ${key}`;
-    const helper = typeof this.errorMessages[key];
-    if (message) {
-      const messageHelper = typeof message;
-      if (messageHelper === 'function') {
-        m = message(value);
-      } else if (messageHelper === 'string') {
-        m = message;
-      }
-    } else if (helper !== 'undefined') {
-      if (helper === 'function') {
-        m = this.errorMessages[key](value);
-      } else if (helper === 'string') {
-        m = this.errorMessages[key];
-      }
-    }
+    const m = PasswordInput.getMessageStringValue(
+      message,
+      value,
+      PasswordInput.getMessageStringValue(
+        this.errorMessages[key],
+        value,
+        `Missing message for rule ${key}`,
+      ),
+    );
     return {
       ...rest,
       key,
@@ -250,6 +245,17 @@ class PasswordInput extends React.Component {
     };
   }
 
+  /**
+   *
+   * @param provided
+   * @returns {{
+   *  minLen: (function(*): string),
+   *  maxLen: (function(*): string),
+   *  digits: (function(*): string),
+   *  uppercaseChars: (function(*): string),
+   *  specialChars: (function(*): string)
+   * }}
+   */
   static getDefaultMessages(provided) {
     const defaultMessages = {
       minLen: val => `Minimal length is ${val}`,
@@ -262,10 +268,27 @@ class PasswordInput extends React.Component {
     };
 
     if (Object.keys(provided).length > 0) {
-      Object.entries(provided).forEach(([key, cb]) => { defaultMessages[key] = cb; });
+      Object.entries(provided).forEach(([key, cb]) => {
+        if (typeof cb === 'string' || typeof cb === 'function') {
+          defaultMessages[key] = cb;
+        }
+      });
     }
 
     return defaultMessages;
+  }
+
+  static getMessageStringValue(message, value, fallbackMessage) {
+    let m = fallbackMessage;
+    const messageHelper = typeof message;
+    if (message) {
+      if (messageHelper === 'function') {
+        m = message(value);
+      } else if (messageHelper === 'string') {
+        m = message;
+      }
+    }
+    return m;
   }
 
   /**
