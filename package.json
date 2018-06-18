@@ -9,7 +9,8 @@
     "test:watch": "jest --watch",
     "start": "webpack --mode=production --watch",
     "build": "webpack --mode=production",
-    "docs": "documentation build  src/** -f html -o docs -g"
+    "docs": "documentation build  src/** -f html -o docs -g",
+    "prepublishOnly": "npm test && npm run build"
   },
   "files": [
     "build"
