@@ -19,6 +19,65 @@ class PasswordInput extends React.Component {
   }
 
   /**
+   * Gets the default messaged used for predefined rules.
+   *
+   * @param provided
+   * @returns {{
+   *  minLen: (function(*): string),
+   *  maxLen: (function(*): string),
+   *  digits: (function(*): string),
+   *  uppercaseChars: (function(*): string),
+   *  specialChars: (function(*): string)
+   * }}
+   */
+  static getDefaultMessages(provided) {
+    const defaultMessages = {
+      minLen: val => `Minimal length is ${val}`,
+      maxLen: val => `Maximal length is ${val}`,
+      digits: val => `Requires at least ${val} digits`,
+      uppercaseChars: val =>
+        `Requires at least ${val} uppercase characters`,
+      specialChars: val =>
+        `Requires at least ${val} special characters`,
+      mustMatch: 'Passwords must match',
+    };
+
+    if (Object.keys(provided).length > 0) {
+      Object.entries(provided).forEach(([key, cb]) => {
+        if (typeof cb === 'string' || typeof cb === 'function') {
+          defaultMessages[key] = cb;
+        }
+      });
+    }
+
+    return defaultMessages;
+  }
+
+  /**
+   * Gets the message string value.
+   * If function is supplied, then pass a value into it and return the output.
+   * If string is supplied simply return it.
+   * If neither of above, use fallback message.
+   *
+   * @param message
+   * @param value
+   * @param fallbackMessage
+   * @returns string
+   */
+  static getMessageStringValue(message, value, fallbackMessage) {
+    let m = fallbackMessage;
+    const messageHelper = typeof message;
+    if (message) {
+      if (messageHelper === 'function') {
+        m = message(value);
+      } else if (messageHelper === 'string') {
+        m = message;
+      }
+    }
+    return m;
+  }
+
+  /**
    * Setups rules from props and initializes state.
    *
    * @param props
@@ -59,35 +118,27 @@ class PasswordInput extends React.Component {
         // If any rule has been added or removed then setup new rules
         if (remaining.length > 0 || nextRemaining.length > 0) {
           this.rules = this.getRules(nextProps);
-          // Revalidate
-          if (this.state.touched) {
-            revalidate = true;
-          }
+          revalidate = true;
         }
       } else { // ...otherwise set new rules
         this.rules = this.getRules(nextProps);
-        // Revalidate
-        if (this.state.touched) {
-          revalidate = true;
-        }
+        revalidate = true;
       }
     }
 
     if (this.props.mustMatch !== nextProps.mustMatch) {
       this.rules = this.getRules(nextProps);
-      // Revalidate
-      if (this.state.touched) {
-        revalidate = true;
-      }
+      revalidate = true;
     }
 
+    // Revalidate
     if (revalidate) {
       this.validate(this.getState().value);
     }
 
     // If we are in controlled mode, validate after value changed
     if (this.isControlledProp('value') && this.props.value !== nextProps.value) {
-      this.validate(nextProps.value);
+      this.validate(nextProps.value, true);
     }
   }
 
@@ -281,53 +332,6 @@ class PasswordInput extends React.Component {
   }
 
   /**
-   *
-   * @param provided
-   * @returns {{
-   *  minLen: (function(*): string),
-   *  maxLen: (function(*): string),
-   *  digits: (function(*): string),
-   *  uppercaseChars: (function(*): string),
-   *  specialChars: (function(*): string)
-   * }}
-   */
-  static getDefaultMessages(provided) {
-    const defaultMessages = {
-      minLen: val => `Minimal length is ${val}`,
-      maxLen: val => `Maximal length is ${val}`,
-      digits: val => `Requires at least ${val} digits`,
-      uppercaseChars: val =>
-        `Requires at least ${val} uppercase characters`,
-      specialChars: val =>
-        `Requires at least ${val} special characters`,
-      mustMatch: 'Passwords must match',
-    };
-
-    if (Object.keys(provided).length > 0) {
-      Object.entries(provided).forEach(([key, cb]) => {
-        if (typeof cb === 'string' || typeof cb === 'function') {
-          defaultMessages[key] = cb;
-        }
-      });
-    }
-
-    return defaultMessages;
-  }
-
-  static getMessageStringValue(message, value, fallbackMessage) {
-    let m = fallbackMessage;
-    const messageHelper = typeof message;
-    if (message) {
-      if (messageHelper === 'function') {
-        m = message(value);
-      } else if (messageHelper === 'string') {
-        m = message;
-      }
-    }
-    return m;
-  }
-
-  /**
    * This determines whether a prop is a "controlled prop" meaning it is
    * state which is controlled by the outside of this component rather
    * than within this component.
@@ -345,7 +349,7 @@ class PasswordInput extends React.Component {
    */
   handleInputChange = (e) => {
     const { value } = e.target;
-    this.validate(value);
+    this.validate(value, true);
   };
 
   /**
@@ -357,16 +361,25 @@ class PasswordInput extends React.Component {
     }
   };
 
-  validate(value) {
-    const newState = this.checkRules(value);
-    if (this.isControlledProp('onChange')) {
-      this.props.onChange(value, newState);
+  /**
+   * Validates given value against all the rules and sets new state, but only if touched or forced.
+   * Also fires the onChange callback if available.
+   *
+   * @param value
+   * @param force
+   */
+  validate(value, force = this.state.touched) {
+    if (force) {
+      const newState = this.checkRules(value);
+      if (this.isControlledProp('onChange')) {
+        this.props.onChange(value, newState);
+      }
+      this.setState({ ...newState, value, touched: true }); // eslint-disable-line
     }
-    this.setState({ ...newState, value, touched: true }); // eslint-disable-line
   }
 
   /**
-   * Validates current password against all supplied rules.
+   * Validates current password against all rules and returns the validation output.
    *
    * @param value
    * @returns {{

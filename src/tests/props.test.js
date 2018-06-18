@@ -66,7 +66,7 @@ describe('props', () => {
   test('should revalidate when in controlled mode and value changed', () => {
     const compo = Input({ value: '', minLen: 2 });
     expect(compo.state().valid).toBe(false);
-    compo.setProps({ value: 'ee' });
+    compo.setProps({ value: 'eee' });
     expect(compo.state().valid).toBe(true);
   });
 
