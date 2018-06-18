@@ -1,3 +1,9 @@
+## v0.3.0
+- Rules are now re-validated when changed dynamically
+- Rules are now re-validated when value changes in controlled mode
+- Add new predefined rule to allow easy password confirmation validation
+- Add demo page to readme
+
 ## v0.2.1
 - Fallback to default message for predefined rules if wrong type is supplied
 

@@ -90,4 +90,17 @@ describe('validation', () => {
     input.simulate('change', { target: { value: errorValue } });
     expect(compo.state().valid).toBe(false);
   });
+
+  test('should check for match', () => {
+    const passValue = 'a123sd!.@AAA';
+    const compo = Input({ mustMatch: passValue });
+
+    const input = compo.find('input');
+    const errorValue = 'adfsasasdkfjhaskjdfgaskjfg';
+
+    input.simulate('change', { target: { value: errorValue } });
+    expect(compo.state().valid).toBe(false);
+    input.simulate('change', { target: { value: passValue } });
+    expect(compo.state().valid).toBe(true);
+  });
 });

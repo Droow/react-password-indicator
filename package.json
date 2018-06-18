@@ -1,6 +1,6 @@
 {
   "name": "react-password-indicator",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Package providing flexible yet powerful password input with fully customizable render",
   "main": "build/index.js",
   "scripts": {

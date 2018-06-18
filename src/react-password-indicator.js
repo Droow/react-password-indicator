@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+// import StepProgress from './StepProgress';
 
 class PasswordInput extends React.Component {
   /**
@@ -35,7 +36,7 @@ class PasswordInput extends React.Component {
     };
 
     this.errorMessages = PasswordInput.getDefaultMessages(props.defaultMessages);
-    this.rules = this.getRules(props.rules);
+    this.rules = this.getRules(props);
   }
 
   /**
@@ -44,6 +45,7 @@ class PasswordInput extends React.Component {
    * @param nextProps
    */
   componentWillReceiveProps(nextProps) {
+    let revalidate = false;
     // If any rules exists
     if (nextProps.rules.length > 0 || this.props.rules.length > 0) {
       const ruleKeys = this.props.rules.map(r => r.key);
@@ -56,11 +58,36 @@ class PasswordInput extends React.Component {
 
         // If any rule has been added or removed then setup new rules
         if (remaining.length > 0 || nextRemaining.length > 0) {
-          this.rules = this.getRules(nextProps.rules);
+          this.rules = this.getRules(nextProps);
+          // Revalidate
+          if (this.state.touched) {
+            revalidate = true;
+          }
         }
       } else { // ...otherwise set new rules
-        this.rules = this.getRules(nextProps.rules);
+        this.rules = this.getRules(nextProps);
+        // Revalidate
+        if (this.state.touched) {
+          revalidate = true;
+        }
       }
+    }
+
+    if (this.props.mustMatch !== nextProps.mustMatch) {
+      this.rules = this.getRules(nextProps);
+      // Revalidate
+      if (this.state.touched) {
+        revalidate = true;
+      }
+    }
+
+    if (revalidate) {
+      this.validate(this.getState().value);
+    }
+
+    // If we are in controlled mode, validate after value changed
+    if (this.isControlledProp('value') && this.props.value !== nextProps.value) {
+      this.validate(nextProps.value);
     }
   }
 
@@ -99,10 +126,10 @@ class PasswordInput extends React.Component {
    *
    * @returns {Array}
    */
-  getRules(additionalRules) {
+  getRules(props) {
     const {
-      minLen, maxLen, digits, uppercaseChars, specialChars,
-    } = this.props;
+      minLen, maxLen, digits, uppercaseChars, specialChars, mustMatch, rules: additionalRules,
+    } = props;
 
     const rules = [];
     additionalRules.forEach(r => rules.push(this.setupRule(r)));
@@ -154,6 +181,14 @@ class PasswordInput extends React.Component {
         },
         key: 'digits',
         value: digits,
+      }));
+    }
+
+    if (mustMatch !== undefined) {
+      PasswordInput.appendRule(rules, this.setupRule({
+        rule: val => val === mustMatch,
+        key: 'mustMatch',
+        value: mustMatch,
       }));
     }
 
@@ -265,6 +300,7 @@ class PasswordInput extends React.Component {
         `Requires at least ${val} uppercase characters`,
       specialChars: val =>
         `Requires at least ${val} special characters`,
+      mustMatch: 'Passwords must match',
     };
 
     if (Object.keys(provided).length > 0) {
@@ -309,11 +345,7 @@ class PasswordInput extends React.Component {
    */
   handleInputChange = (e) => {
     const { value } = e.target;
-    const newState = this.checkRules(value);
-    if (this.isControlledProp('onChange')) {
-      this.props.onChange(value, newState);
-    }
-    this.setState({ ...newState, value, touched: true }); // eslint-disable-line
+    this.validate(value);
   };
 
   /**
@@ -324,6 +356,14 @@ class PasswordInput extends React.Component {
       this.setState(state => ({ isVisible: !state.isVisible }));
     }
   };
+
+  validate(value) {
+    const newState = this.checkRules(value);
+    if (this.isControlledProp('onChange')) {
+      this.props.onChange(value, newState);
+    }
+    this.setState({ ...newState, value, touched: true }); // eslint-disable-line
+  }
 
   /**
    * Validates current password against all supplied rules.
@@ -413,11 +453,12 @@ PasswordInput.propTypes = {
       PropTypes.string,
     ]),
   })),
-  minLen: PropTypes.number,
-  maxLen: PropTypes.number,
-  digits: PropTypes.number,
-  specialChars: PropTypes.number,
-  uppercaseChars: PropTypes.number,
+  minLen: PropTypes.number, // eslint-disable-line
+  maxLen: PropTypes.number, // eslint-disable-line
+  digits: PropTypes.number, // eslint-disable-line
+  specialChars: PropTypes.number, // eslint-disable-line
+  uppercaseChars: PropTypes.number, // eslint-disable-line
+  mustMatch: PropTypes.string, // eslint-disable-line
   // These props are not unused, just eslint not recognizing them
   // because we are accessing them through getState method
   value: PropTypes.string, // eslint-disable-line
@@ -430,6 +471,7 @@ PasswordInput.defaultProps = {
   digits: 0,
   specialChars: 0,
   uppercaseChars: 0,
+  mustMatch: undefined,
   rules: [],
   defaultValue: '',
   defaultMessages: {},
@@ -442,5 +484,7 @@ PasswordInput.defaultProps = {
   render: undefined,
   children: undefined,
 };
+
+// PasswordInput.StepProgress = StepProgress;
 
 export default PasswordInput;

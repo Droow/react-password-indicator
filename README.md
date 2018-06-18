@@ -16,7 +16,9 @@ You can install this package using one of these commands:
 This package also depends on `react` and `prop-types`. Please make sure you have those installed as well.
 
 ## Usage
-You can see the demo here:
+[DEMO](https://droow.github.io/react-password-indicator/)
+
+You can play with sandbox here:
 
 [![Edit o772lmq6](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/o772lmq6)
 
@@ -132,6 +134,11 @@ Predefined rule to check password for minimal number of special characters (?!@#
 > `number` | defaults to 0
 
 Predefined rule to check password for minimal number of uppercase characters. Uses >= operator, if you want to use > you have to use a custom rule.
+
+### mustMatch
+> `string` | defaults to undefined
+
+Predefined rule to check if password matches given string. Can be used for password confirmation.
 
 ### render
 > `function({})` | _required_
