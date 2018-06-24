@@ -1,3 +1,7 @@
+## v0.4.0
+- Return all rules in render function
+- Add `hasRulePassed` function to detect passed rules
+
 ## v0.3.0
 - Rules are now re-validated when changed dynamically
 - Rules are now re-validated when value changes in controlled mode

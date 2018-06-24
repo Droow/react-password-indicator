@@ -87,8 +87,10 @@ describe('validation', () => {
 
     input.simulate('change', { target: { value: passValue } });
     expect(compo.state().valid).toBe(true);
+    expect(compo.instance().hasRulePassed('maxLen')).toBe(true);
     input.simulate('change', { target: { value: errorValue } });
     expect(compo.state().valid).toBe(false);
+    expect(compo.instance().hasRulePassed('maxLen')).toBe(false);
   });
 
   test('should check for match', () => {

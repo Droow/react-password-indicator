@@ -204,12 +204,13 @@ Or you can pass it as the children prop if you prefer to:
 
 The properties of passed to this render method are listed below:
 
+### Render props passed to the render function
 
-### `getInputProps`
+#### `getInputProps`
 
 This method should be applied to the `input` you render.
 
-### `getProgressProps`
+#### `getProgressProps`
 
 This method should be applied to the `progress` you render. It returns object of this shape:
 
@@ -219,6 +220,42 @@ This method should be applied to the `progress` you render. It returns object of
   max: 7, // count of all rules
 }
 ```
+
+#### `toggleShowPassword`
+> `function`
+
+Function used to toggle password visibility.
+
+#### `hasRulePassed`
+> `function(key)`
+
+Returns true if password passed the validation on this rule.
+
+#### `valid`
+> `boolean`
+
+Indicates if the password has passed all the rules.
+
+#### `isVisible`
+> `boolean`
+
+Indicates if the password is visible (input element has type or 'text' instead of 'password').
+
+#### `errors`
+> `array`
+
+All the errors that occurred during password validation. 
+
+
+#### `touched`
+> `boolean`
+
+Indicates if the password input has been changed.
+
+#### `rules`
+> `array`
+
+All the rules currently applied to password validation.
 
 ## License
 MIT

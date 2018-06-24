@@ -19,65 +19,6 @@ class PasswordInput extends React.Component {
   }
 
   /**
-   * Gets the default messaged used for predefined rules.
-   *
-   * @param provided
-   * @returns {{
-   *  minLen: (function(*): string),
-   *  maxLen: (function(*): string),
-   *  digits: (function(*): string),
-   *  uppercaseChars: (function(*): string),
-   *  specialChars: (function(*): string)
-   * }}
-   */
-  static getDefaultMessages(provided) {
-    const defaultMessages = {
-      minLen: val => `Minimal length is ${val}`,
-      maxLen: val => `Maximal length is ${val}`,
-      digits: val => `Requires at least ${val} digits`,
-      uppercaseChars: val =>
-        `Requires at least ${val} uppercase characters`,
-      specialChars: val =>
-        `Requires at least ${val} special characters`,
-      mustMatch: 'Passwords must match',
-    };
-
-    if (Object.keys(provided).length > 0) {
-      Object.entries(provided).forEach(([key, cb]) => {
-        if (typeof cb === 'string' || typeof cb === 'function') {
-          defaultMessages[key] = cb;
-        }
-      });
-    }
-
-    return defaultMessages;
-  }
-
-  /**
-   * Gets the message string value.
-   * If function is supplied, then pass a value into it and return the output.
-   * If string is supplied simply return it.
-   * If neither of above, use fallback message.
-   *
-   * @param message
-   * @param value
-   * @param fallbackMessage
-   * @returns string
-   */
-  static getMessageStringValue(message, value, fallbackMessage) {
-    let m = fallbackMessage;
-    const messageHelper = typeof message;
-    if (message) {
-      if (messageHelper === 'function') {
-        m = message(value);
-      } else if (messageHelper === 'string') {
-        m = message;
-      }
-    }
-    return m;
-  }
-
-  /**
    * Setups rules from props and initializes state.
    *
    * @param props
@@ -170,6 +111,65 @@ class PasswordInput extends React.Component {
       value,
       message: m,
     };
+  }
+
+  /**
+   * Gets the default messaged used for predefined rules.
+   *
+   * @param provided
+   * @returns {{
+   *  minLen: (function(*): string),
+   *  maxLen: (function(*): string),
+   *  digits: (function(*): string),
+   *  uppercaseChars: (function(*): string),
+   *  specialChars: (function(*): string)
+   * }}
+   */
+  static getDefaultMessages(provided) {
+    const defaultMessages = {
+      minLen: val => `Minimal length is ${val}`,
+      maxLen: val => `Maximal length is ${val}`,
+      digits: val => `Requires at least ${val} digits`,
+      uppercaseChars: val =>
+        `Requires at least ${val} uppercase characters`,
+      specialChars: val =>
+        `Requires at least ${val} special characters`,
+      mustMatch: 'Passwords must match',
+    };
+
+    if (Object.keys(provided).length > 0) {
+      Object.entries(provided).forEach(([key, cb]) => {
+        if (typeof cb === 'string' || typeof cb === 'function') {
+          defaultMessages[key] = cb;
+        }
+      });
+    }
+
+    return defaultMessages;
+  }
+
+  /**
+   * Gets the message string value.
+   * If function is supplied, then pass a value into it and return the output.
+   * If string is supplied simply return it.
+   * If neither of above, use fallback message.
+   *
+   * @param message
+   * @param value
+   * @param fallbackMessage
+   * @returns string
+   */
+  static getMessageStringValue(message, value, fallbackMessage) {
+    let m = fallbackMessage;
+    const messageHelper = typeof message;
+    if (message) {
+      if (messageHelper === 'function') {
+        m = message(value);
+      } else if (messageHelper === 'string') {
+        m = message;
+      }
+    }
+    return m;
   }
 
   /**
@@ -324,12 +324,22 @@ class PasswordInput extends React.Component {
       getInputProps: this.getInputProps,
       getProgressProps: this.getProgressProps,
       toggleShowPassword: this.handleToggleShowPassword,
+      hasRulePassed: this.hasRulePassed,
       touched,
       errors,
+      rules: this.rules,
       valid,
       isVisible,
     };
   }
+
+  /**
+   * Checks if rule passed last validation.
+   *
+   * @param key
+   * @returns {boolean}
+   */
+  hasRulePassed = key => !this.state.errors.find(e => e.key === key);
 
   /**
    * This determines whether a prop is a "controlled prop" meaning it is
