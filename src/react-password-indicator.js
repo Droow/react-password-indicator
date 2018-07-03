@@ -437,6 +437,7 @@ class PasswordInput extends React.Component {
       progress,
       valid,
       errors,
+      touched: true,
     };
   }
 

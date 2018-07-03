@@ -10,7 +10,7 @@ class Basic extends React.PureComponent {
     this.state = {
       isVisible: false,
       value: '',
-      status: {},
+      status: { touched: false },
     }
   }
 
@@ -24,7 +24,7 @@ class Basic extends React.PureComponent {
   };
 
   render() {
-    const { isVisible, value, status: { valid } } = this.state;
+    const { isVisible, value, status: { touched, valid } } = this.state;
     return(
       <div>
         <h2>Basic Usage of controlled mode</h2>
@@ -36,7 +36,7 @@ class Basic extends React.PureComponent {
           value={value}
           onChange={this.handleOnChange}
         >
-          {({ getInputProps, touched }) => (
+          {({ getInputProps }) => (
             <p>
               Enter password with minimal length of 5 and 2 digits: <br />
               <input {...getInputProps()} className={touched ? (valid ? 'success' : 'error') : ''} />

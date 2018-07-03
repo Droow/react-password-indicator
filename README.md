@@ -9,11 +9,11 @@ Package providing flexible yet powerful password input with fully customizable r
 ## Installation
 
 You can install this package using one of these commands:
-> `npm install --save react-password-indicator`
+> `npm i --save react-password-indicator`
 
 > `yarn add react-password-indicator`
 
-This package also depends on `react` and `prop-types`. Please make sure you have those installed as well.
+This package also depends on `react`. Please make sure you have it installed as well.
 
 ## Usage
 *[Basic usage and demo](https://droow.github.io/react-password-indicator/)*
