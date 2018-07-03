@@ -16,92 +16,11 @@ You can install this package using one of these commands:
 This package also depends on `react` and `prop-types`. Please make sure you have those installed as well.
 
 ## Usage
-[DEMO](https://droow.github.io/react-password-indicator/)
+*[Basic usage and demo](https://droow.github.io/react-password-indicator/)*
 
 You can play with sandbox here:
 
 [![Edit o772lmq6](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/o772lmq6)
-
-Basic usage:
-```jsx
-import React from 'react';
-import PasswordInput from 'react-passsword-indicator';
-
-// Custom error messages
-const errorMessages = {
-    minLen: 'Password is not long enough!',
-    maxLen: (val) => `Password exceeded the maximum length of ${val}`,
-    customAtRule: 'Missing @! This message will be overriden.',
-};
-
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { visible: false };
-  }
-  
-  render() {
-    return (
-      <div>
-        {/* Using controlled mode to toggle password visibility */}
-        <button onClick={() => this.setState((state) => ({ visible: !state.visible }))}>Show password</button>
-        <PasswordInput
-          minLen={4} // Optional predefined rule
-          digits={2} // Optional predefined rule
-          maxLen={10} // Optional predefined rule
-          specialChars={2} // Optional predefined rule
-          uppercaseChars={2} // Optional predefined rule
-          defaultMessages={errorMessages}
-          // Controlled mode
-          // if not set the toggleShowPassword function in the render function should be used
-          isVisible={this.state.visible} 
-          onChange={(value, state) => console.log('Current pass', value, 'and progress', state)}
-          // Additional custom rules
-          rules={[
-            {
-              rule: (val) => val.indexOf('@') > -1,
-              key: 'customAtRule',
-              // override the default message
-              message:'Your password must contain the @ char.',
-            }
-          ]}
-        >
-          {({
-            getInputProps,
-            getProgressProps,
-            valid,
-            isVisible,
-            errors,
-            toggleShowPassword,
-            touched
-          }) => (
-            <div>
-              <input {...getInputProps()} />
-              {/*
-              Uncontrolled mode
-              just using provided function and the visibility state is internal
-              WARNING: Doesn't work when isVisible prop is provided to the PasswordInput
-              */}
-              <button onClick={toggleShowPassword}>{isVisible ? 'Hide' : 'Show'}</button><br />
-              {touched &&
-                <div>
-                  <progress {...getProgressProps()} />
-                  <p>Password is {valid ? '' : 'in'}valid!</p>
-                  {errors &&
-                    <ul>
-                      {errors.map((e) => <li key={e.key}>{e.message}</li>)}
-                    </ul>
-                  }
-                </div>
-              }
-            </div>
-          )}
-        </PasswordInput>
-      </div>
-    );
-  }
-}
-```
 
 ## Props
 
