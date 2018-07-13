@@ -10,8 +10,8 @@ import './assets/main.css';
 setOptions({
   name: 'react-password-indicator',
   url: 'https://droow.github.io/react-password-indicator',
-  showDownPanel: true,
-  downPanelInRight: true,
+  showAddonPanel: true,
+  addonPanelInRight: true,
 });
 
 // automatically import all files ending in *.stories.js

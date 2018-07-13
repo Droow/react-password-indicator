@@ -1,3 +1,11 @@
+## v0.5.0
+- Add `informed` integration support
+- Add more examples to storybook
+
+## v0.4.1
+- Add storybook
+- Update readme
+
 ## v0.4.0
 - Return all rules in render function
 - Add `hasRulePassed` function to detect passed rules

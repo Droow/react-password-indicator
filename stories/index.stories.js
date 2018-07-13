@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { withMarkdownNotes } from '@storybook/addon-notes';
 
 import { Basic, WithBar, WithErrors, WithRules, WithMessages } from './Uncontrolled';
-import { Basic as CBasic } from './Controlled';
+import { Basic as CBasic, Informed } from './Controlled';
 import Welcome from './Welcome';
 import readme from '../README.md';
 
@@ -18,4 +18,5 @@ storiesOf('Basic usage (uncontrolled)', module)
   .add('Custom messages', WithMessages);
 
 storiesOf('Controlled mode', module)
-  .add('Basic example', () => <CBasic />);
+  .add('Basic example', () => <CBasic />)
+  .add('Informed integration', () => <Informed />);

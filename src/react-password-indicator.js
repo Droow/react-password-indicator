@@ -58,22 +58,28 @@ class PasswordInput extends React.Component {
 
         // If any rule has been added or removed then setup new rules
         if (remaining.length > 0 || nextRemaining.length > 0) {
-          this.rules = this.getRules(nextProps);
           revalidate = true;
+        } else {
+          // Check if values of the rules changed (even when key is the same)
+          this.rules.filter(r => r.value !== undefined).forEach((r) => {
+            const rule = nextProps.rules.find(nr => nr.key === r.key);
+            if (rule && rule.value !== r.value) {
+              revalidate = true;
+            }
+          });
         }
       } else { // ...otherwise set new rules
-        this.rules = this.getRules(nextProps);
         revalidate = true;
       }
     }
 
     if (this.props.mustMatch !== nextProps.mustMatch) {
-      this.rules = this.getRules(nextProps);
       revalidate = true;
     }
 
     // Revalidate
     if (revalidate) {
+      this.rules = this.getRules(nextProps);
       this.validate(this.getState().value);
     }
 
@@ -187,7 +193,7 @@ class PasswordInput extends React.Component {
 
     if (minLen !== 0) {
       PasswordInput.appendRule(rules, this.setupRule({
-        rule: val => val.length >= minLen,
+        rule: (val, ruleVal) => val.length >= ruleVal,
         key: 'minLen',
         value: minLen,
       }));
@@ -195,7 +201,7 @@ class PasswordInput extends React.Component {
 
     if (maxLen !== 0) {
       PasswordInput.appendRule(rules, this.setupRule({
-        rule: val => val.length <= maxLen,
+        rule: (val, ruleVal) => val.length <= ruleVal,
         key: 'maxLen',
         value: maxLen,
         inverted: true,
@@ -204,9 +210,9 @@ class PasswordInput extends React.Component {
 
     if (uppercaseChars !== 0) {
       PasswordInput.appendRule(rules, this.setupRule({
-        rule: (val) => {
+        rule: (val, ruleVal) => {
           const match = val.match(/[A-Z]/g);
-          return match && match.length >= uppercaseChars;
+          return match && match.length >= ruleVal;
         },
         key: 'uppercaseChars',
         value: uppercaseChars,
@@ -215,9 +221,9 @@ class PasswordInput extends React.Component {
 
     if (specialChars !== 0) {
       PasswordInput.appendRule(rules, this.setupRule({
-        rule: (val) => {
+        rule: (val, ruleVal) => {
           const match = val.match(/[\?!@#\$%\^\&*\)\(\+=\.\_\-\}\{,\"\'\[\]]/g); // eslint-disable-line
-          return match && match.length >= specialChars;
+          return match && match.length >= ruleVal;
         },
         key: 'specialChars',
         value: specialChars,
@@ -226,9 +232,9 @@ class PasswordInput extends React.Component {
 
     if (digits !== 0) {
       PasswordInput.appendRule(rules, this.setupRule({
-        rule: (val) => {
+        rule: (val, ruleVal) => {
           const match = val.match(/[0-9]/g);
-          return match && match.length >= digits;
+          return match && match.length >= ruleVal;
         },
         key: 'digits',
         value: digits,
@@ -237,7 +243,7 @@ class PasswordInput extends React.Component {
 
     if (mustMatch !== undefined) {
       PasswordInput.appendRule(rules, this.setupRule({
-        rule: val => val === mustMatch,
+        rule: (val, ruleVal) => val === ruleVal,
         key: 'mustMatch',
         value: mustMatch,
       }));
@@ -273,17 +279,26 @@ class PasswordInput extends React.Component {
   /**
    * Gets props which are intended for the input element.
    *
-   * @returns {{type: *, onChange: PasswordInput.handleInputChange}}
+   * @returns {{
+   *  type: string,
+   *  onChange: PasswordInput.handleInputChange,
+   *  value: Object.value,
+   *  name: PasswordInput.props.name
+   * }}
    */
-  getInputProps = () => {
+  getInputProps = (rest) => {
     const { isVisible, value } = this.getState();
     const { name } = this.props;
-    return {
+    const props = {
       type: isVisible ? 'text' : 'password',
       onChange: this.handleInputChange,
       value,
       name,
+      // ref: (r) => this.inputRef = r,
+      ...rest,
     };
+
+    return props;
   };
 
   /**
@@ -325,6 +340,7 @@ class PasswordInput extends React.Component {
       getProgressProps: this.getProgressProps,
       toggleShowPassword: this.handleToggleShowPassword,
       hasRulePassed: this.hasRulePassed,
+      validate: this.inputValidate,
       touched,
       errors,
       rules: this.rules,
@@ -332,6 +348,13 @@ class PasswordInput extends React.Component {
       isVisible,
     };
   }
+
+  /**
+   * Helper validation for informed (react-form).
+   *
+   * @returns {array|null}
+   */
+  inputValidate = () => (this.state.errors.length ? this.state.errors : null);
 
   /**
    * Checks if rule passed last validation.
@@ -377,6 +400,7 @@ class PasswordInput extends React.Component {
    *
    * @param value
    * @param force
+   * @param blur
    */
   validate(value, force = this.state.touched) {
     if (force) {
@@ -411,7 +435,8 @@ class PasswordInput extends React.Component {
     // Validate each rule
     this.rules.forEach((r) => {
       const { rule, inverted, ...rest } = r;
-      const result = rule(value);
+      const result = r.value === undefined ? rule(value) : rule(value, r.value);
+
       if (result) {
         // Lets increment the progress when a rule passes
         if (!inverted) {

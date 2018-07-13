@@ -88,7 +88,7 @@ Should have following shape:
 ```js
 {
    // Override default message for predefined rule
-  minLen: (val) => `Minimal password length id ${val}`,
+  minLen: (val) => `Minimal password length is ${val}`,
   // If you dont need the value, string is also acceptable
   maxLen: 'Password is too long!',
   // Message for custom rule
@@ -103,11 +103,22 @@ Array of additional custom rules in following format:
 ```js
 {
   key: 'myRuleKey', // required - each rule needs unique identification
-  rule: (value) => value.indexOf('@') > -1, // required - the validation function (has to return true or false)
+  rule: (value, ruleValue) => value.indexOf(ruleValue) > -1, // required - the validation function (has to return true or false)
   // optional error message - required if you did not set the default message
   message: 'Password is not valid for my custom rule',
+  value: '@' // allows dynamic rule value change  
 }
-``` 
+```
+
+If you don't need to change rule value dynamically, you can just skip it:
+```js
+{
+  key: 'myRuleKey', // required - each rule needs unique identification
+  rule: (value) => value.indexOf('@') > -1, // required - the validation function (has to return true or false)
+  // optional error message - required if you did not set the default message
+  message: 'Password is not valid for my custom rule',  
+}
+```
 
 ## Render Prop Function
 This is where you render whatever you want to based on the state of `react-password-indicator`.
@@ -139,6 +150,10 @@ This method should be applied to the `progress` you render. It returns object of
   max: 7, // count of all rules
 }
 ```
+
+#### `validate`
+
+This method returns all current errors or null when called. Useful for integration with `informed`.
 
 #### `toggleShowPassword`
 > `function`

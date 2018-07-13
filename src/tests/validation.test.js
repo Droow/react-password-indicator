@@ -105,4 +105,50 @@ describe('validation', () => {
     input.simulate('change', { target: { value: passValue } });
     expect(compo.state().valid).toBe(true);
   });
+
+  test('should revalidate when rule value changed', () => {
+    const compo = Input({ rules: [{ key: 'test', rule: (val, ruleVal) => val === ruleVal, value: 'a' }] });
+    const input = compo.find('input');
+
+    expect(compo.state().valid).toBe(false);
+    input.simulate('change', { target: { value: 'a' } });
+    expect(compo.state().valid).toBe(true);
+    compo.setProps({ rules: [{ key: 'test', rule: (val, ruleVal) => val === ruleVal, value: 'ab' }] });
+    expect(compo.state().valid).toBe(false);
+    compo.setProps({ rules: [{ key: 'test', rule: (val, ruleVal) => val === ruleVal, value: 'ab' }] });
+    expect(compo.state().valid).toBe(false);
+  });
+
+  test('should revalidate when in controlled mode and value changed', () => {
+    const compo = Input({ value: '', minLen: 2 });
+    expect(compo.state().valid).toBe(false);
+    compo.setProps({ value: 'eee' });
+    expect(compo.state().valid).toBe(true);
+  });
+
+  test('should revalidate when rules dynamically changed', () => {
+    const compo = Input({ rules: [{ key: 'testRule', rule: () => false, alwaysValidate: true, message: '' }] });
+    const input = compo.find('input');
+
+    expect(compo.state().valid).toBe(false);
+    input.simulate('change', { target: { value: 'aa' } });
+    expect(compo.state().valid).toBe(false);
+    compo.setProps({ rules: [{ key: 'testRule2', rule: () => true, alwaysValidate: true, message: '' }] });
+    expect(compo.state().valid).toBe(true);
+    compo.setProps({ rules: [{ key: 'testRule2', rule: () => true, alwaysValidate: true, message: '' }, { key: 'testRule', rule: () => false, alwaysValidate: true, message: '' }] });
+    expect(compo.state().valid).toBe(false);
+  });
+
+  test('should revalidate when mustMatch prop changed', () => {
+    const compo = Input({ mustMatch: 'a' });
+    const input = compo.find('input');
+
+    expect(compo.state().valid).toBe(false);
+    compo.setProps({ mustMatch: 'aa' });
+    expect(compo.state().valid).toBe(false);
+    input.simulate('change', { target: { value: 'aa' } });
+    expect(compo.state().valid).toBe(true);
+    compo.setProps({ mustMatch: 'bb' });
+    expect(compo.state().valid).toBe(false);
+  });
 });

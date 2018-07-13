@@ -63,36 +63,13 @@ describe('props', () => {
     expect(inst.rules.length).toBe(0);
   });
 
-  test('should revalidate when in controlled mode and value changed', () => {
-    const compo = Input({ value: '', minLen: 2 });
-    expect(compo.state().valid).toBe(false);
-    compo.setProps({ value: 'eee' });
-    expect(compo.state().valid).toBe(true);
-  });
-
-  test('should revalidate when routes dynamically changed', () => {
-    const compo = Input({ rules: [{ key: 'testRule', rule: () => false, alwaysValidate: true, message: '' }] });
+  test('should pass validate function to rootProps', () => {
+    const compo = Input({ minLen: 4, render: ({ validate, getInputProps }) => (<input {...getInputProps({ validate })} />) });
     const input = compo.find('input');
 
-    expect(compo.state().valid).toBe(false);
+    expect(typeof input.prop('validate')).toEqual('function');
+    expect(input.prop('validate')()).toEqual(null);
     input.simulate('change', { target: { value: 'aa' } });
-    expect(compo.state().valid).toBe(false);
-    compo.setProps({ rules: [{ key: 'testRule2', rule: () => true, alwaysValidate: true, message: '' }] });
-    expect(compo.state().valid).toBe(true);
-    compo.setProps({ rules: [{ key: 'testRule2', rule: () => true, alwaysValidate: true, message: '' }, { key: 'testRule', rule: () => false, alwaysValidate: true, message: '' }] });
-    expect(compo.state().valid).toBe(false);
-  });
-
-  test('should revalidate when mustMatch prop changed', () => {
-    const compo = Input({ mustMatch: 'a' });
-    const input = compo.find('input');
-
-    expect(compo.state().valid).toBe(false);
-    compo.setProps({ mustMatch: 'aa' });
-    expect(compo.state().valid).toBe(false);
-    input.simulate('change', { target: { value: 'aa' } });
-    expect(compo.state().valid).toBe(true);
-    compo.setProps({ mustMatch: 'bb' });
-    expect(compo.state().valid).toBe(false);
+    expect(input.prop('validate')()[0].key).toBe('minLen');
   });
 });
