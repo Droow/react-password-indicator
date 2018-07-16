@@ -369,7 +369,10 @@ class PasswordInput extends React.Component {
    *
    * @returns {array|null}
    */
-  inputValidate = () => (this.state.errors.length ? this.state.errors : null);
+  inputValidate = () => {
+    this.validate(this.getState().value, true);
+    return (this.state.errors.length ? this.state.errors : null);
+  };
 
   /**
    * Checks if rule passed last validation.
@@ -415,7 +418,6 @@ class PasswordInput extends React.Component {
    *
    * @param value
    * @param force
-   * @param blur
    */
   validate(value, force = this.state.touched) {
     if (force) {
