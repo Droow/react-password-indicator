@@ -370,8 +370,8 @@ class PasswordInput extends React.Component {
    * @returns {array|null}
    */
   inputValidate = () => {
-    this.validate(this.getState().value, true);
-    return (this.state.errors.length ? this.state.errors : null);
+    const state = this.validate(this.getState().value, true);
+    return (state.errors.length ? state.errors : null);
   };
 
   /**
@@ -426,7 +426,9 @@ class PasswordInput extends React.Component {
         this.props.onChange(value, newState);
       }
       this.setState({ ...newState, value, touched: true }); // eslint-disable-line
+      return newState;
     }
+    return null;
   }
 
   /**

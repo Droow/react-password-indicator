@@ -68,8 +68,8 @@ describe('props', () => {
     const input = compo.find('input');
 
     expect(typeof input.prop('validate')).toEqual('function');
-    expect(input.prop('validate')()).toEqual(null);
-    input.simulate('change', { target: { value: 'aa' } });
     expect(input.prop('validate')()[0].key).toBe('minLen');
+    input.simulate('change', { target: { value: 'aaaaa' } });
+    expect(input.prop('validate')()).toEqual(null);
   });
 });
