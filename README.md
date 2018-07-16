@@ -59,6 +59,11 @@ Predefined rule to check password for minimal number of uppercase characters. Us
 
 Predefined rule to check if password matches given string. Can be used for password confirmation.
 
+### required
+> `bool` | defaults to false
+
+Predefined rule to set password as required.
+
 ### render
 > `function({})` | _required_
 

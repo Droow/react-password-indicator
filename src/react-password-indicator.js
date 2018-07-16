@@ -141,6 +141,7 @@ class PasswordInput extends React.Component {
       specialChars: val =>
         `Requires at least ${val} special characters`,
       mustMatch: 'Passwords must match',
+      required: 'Password is required',
     };
 
     if (Object.keys(provided).length > 0) {
@@ -185,11 +186,25 @@ class PasswordInput extends React.Component {
    */
   getRules(props) {
     const {
-      minLen, maxLen, digits, uppercaseChars, specialChars, mustMatch, rules: additionalRules,
+      minLen,
+      maxLen,
+      digits,
+      uppercaseChars,
+      specialChars,
+      mustMatch,
+      required,
+      rules: additionalRules,
     } = props;
 
     const rules = [];
     additionalRules.forEach(r => rules.push(this.setupRule(r)));
+
+    if (required !== false) {
+      PasswordInput.appendRule(rules, this.setupRule({
+        rule: val => !!val,
+        key: 'required',
+      }));
+    }
 
     if (minLen !== 0) {
       PasswordInput.appendRule(rules, this.setupRule({
@@ -505,6 +520,7 @@ PasswordInput.propTypes = {
   minLen: PropTypes.number, // eslint-disable-line
   maxLen: PropTypes.number, // eslint-disable-line
   digits: PropTypes.number, // eslint-disable-line
+  required: PropTypes.bool, // eslint-disable-line
   specialChars: PropTypes.number, // eslint-disable-line
   uppercaseChars: PropTypes.number, // eslint-disable-line
   mustMatch: PropTypes.string, // eslint-disable-line
@@ -520,6 +536,7 @@ PasswordInput.defaultProps = {
   digits: 0,
   specialChars: 0,
   uppercaseChars: 0,
+  required: false,
   mustMatch: undefined,
   rules: [],
   defaultValue: '',

@@ -29,7 +29,7 @@ describe('messages', () => {
   test('should use default messages if none supplied', () => {
     const result = Input();
     const msgKeys = Object.keys(result.instance().errorMessages);
-    expect(msgKeys.length).toBe(6);
+    expect(msgKeys.length).toBe(7);
     expect(msgKeys.includes('minLen')).toBe(true);
     expect(msgKeys.includes('maxLen')).toBe(true);
   });
@@ -37,7 +37,7 @@ describe('messages', () => {
   test('should use default messages if none supplied', () => {
     const result = Input({ defaultMessages: { myCustomRule: 'My Message' }});
     const msgKeys = Object.keys(result.instance().errorMessages);
-    expect(msgKeys.length).toBe(7);
+    expect(msgKeys.length).toBe(8);
     expect(msgKeys.includes('myCustomRule')).toBe(true);
   });
 

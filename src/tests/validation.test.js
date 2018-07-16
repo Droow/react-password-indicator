@@ -106,6 +106,17 @@ describe('validation', () => {
     expect(compo.state().valid).toBe(true);
   });
 
+  test('should check if required', () => {
+    const passValue = 'aaa';
+    const compo = Input({ required: true });
+    const input = compo.find('input');
+
+    input.simulate('change', { target: { value: '' } });
+    expect(compo.state().valid).toBe(false);
+    input.simulate('change', { target: { value: passValue } });
+    expect(compo.state().valid).toBe(true);
+  });
+
   test('should revalidate when rule value changed', () => {
     const compo = Input({ rules: [{ key: 'test', rule: (val, ruleVal) => val === ruleVal, value: 'a' }] });
     const input = compo.find('input');

@@ -1,3 +1,6 @@
+## v0.5.1
+- Add `required` predefined rule
+
 ## v0.5.0
 - Add `informed` integration support
 - Add more examples to storybook
