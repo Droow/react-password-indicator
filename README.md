@@ -79,10 +79,25 @@ Can be used in controlled mode to control the visibility of password in input el
 
 Can be used in controlled mode.
 
-### name
-> `string`
+### onChange
+> `function()`
 
-Name will be passed down to input and also to onChange event.
+This function is called when the input is changed and returns current input value.
+
+### onBlur
+> `function()`
+
+This function is called when the input is blur event is fired and returns current input value.
+
+### onValidate
+> `function()`
+
+This function is called when the value has been validated and returns the validation result.
+
+### validateOnBlur
+> `boolean` | defaults to false
+
+If true, the value will be validated on input blur instead of input change.
 
 ### defaultMessages
 > `object`
