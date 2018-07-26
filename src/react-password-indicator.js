@@ -12,7 +12,7 @@ class PasswordInput extends React.Component {
   static appendRule(rules, rule) {
     const sameRule = rules && rules.filter(r => r.key === rule.key);
     if (sameRule && sameRule.length > 0) {
-      console.error(`react-password-indicator: Rule conflict with key "${rule.key}". The new rule is ignored.`);
+      console.error(`react-password-indicator: Rule conflict with key "${rule.key}". The new rule is ignored.`); // eslint-disable-line
     } else {
       rules.push(rule);
     }
@@ -297,23 +297,19 @@ class PasswordInput extends React.Component {
    * @returns {{
    *  type: string,
    *  onChange: PasswordInput.handleInputChange,
+   *  onBlur: PasswordInput.handleInputBlur,
    *  value: Object.value,
-   *  name: PasswordInput.props.name
    * }}
    */
   getInputProps = (rest) => {
     const { isVisible, value } = this.getState();
-    const { name } = this.props;
-    const props = {
+    return {
       type: isVisible ? 'text' : 'password',
       onChange: this.handleInputChange,
+      onBlur: this.handleInputBlur,
       value,
-      name,
-      // ref: (r) => this.inputRef = r,
       ...rest,
     };
-
-    return props;
   };
 
   /**
@@ -331,19 +327,27 @@ class PasswordInput extends React.Component {
 
   /**
    * Gets all the props that are passed to the render.
-   *
    * @returns {{
-   *  getInputProps: (function(): {
-   *    type: string,
-   *    onChange: PasswordInput.handleInputChange,
-   *    value: Object.value,
-   *    name: PasswordInput.props.name
-   *  }),
-   *  getProgressProps: (function(): {
-   *    value: (number|PasswordInput.state.progress.current),
-   *    max: PasswordInput.state.progress.max
-   *  }),
-   *  toggleShowPassword: PasswordInput.handleToggleShowPassword
+   *  getInputProps:
+   *    (function(*): {
+   *      type: string,
+   *      onChange: PasswordInput.handleInputChange,
+   *      onBlur: PasswordInput.handleInputBlur,
+   *      value: Object.value
+   *    }),
+   *  getProgressProps:
+   *    (function(): {
+   *      value: (number|PasswordInput.state.progress.current),
+   *      max: PasswordInput.state.progress.max
+   *    }),
+   *  toggleShowPassword: PasswordInput.handleToggleShowPassword,
+   *  hasRulePassed: (function(*): boolean),
+   *  validate: (function(): *),
+   *  touched: (boolean|*),
+   *  errors: (Array|*),
+   *  rules: *,
+   *  valid: (boolean|*),
+   *  isVisible: (boolean|*)
    * }}
    */
   getRootProps() {
@@ -400,7 +404,31 @@ class PasswordInput extends React.Component {
    */
   handleInputChange = (e) => {
     const { value } = e.target;
-    this.validate(value, true);
+
+    if (this.isControlledProp('onChange')) {
+      this.props.onChange(value);
+    }
+
+    this.setState({ value }, () => { // eslint-disable-line
+      if (!this.props.validateOnBlur) {
+        this.validate(value, true);
+      }
+    });
+  };
+
+  /**
+   * Handles the input blur.
+   */
+  handleInputBlur = () => {
+    const { value } = this.getState();
+
+    if (this.isControlledProp('onBlur')) {
+      this.props.onBlur(value);
+    }
+
+    if (this.props.validateOnBlur) {
+      this.validate(value, true);
+    }
   };
 
   /**
@@ -422,10 +450,11 @@ class PasswordInput extends React.Component {
   validate(value, force = this.state.touched) {
     if (force) {
       const newState = this.checkRules(value);
-      if (this.isControlledProp('onChange')) {
-        this.props.onChange(value, newState);
-      }
-      this.setState({ ...newState, value, touched: true }); // eslint-disable-line
+      this.setState({ ...newState, touched: true }, () => {
+        if (this.isControlledProp('onValidate')) {
+          this.props.onValidate(newState);
+        }
+      }); // eslint-disable-line
       return newState;
     }
     return null;
@@ -489,19 +518,17 @@ class PasswordInput extends React.Component {
    * Let's get this party started!
    */
   render() {
-    const children = this.props.render || this.props.children;
+    const render = this.props.render || this.props.children;
 
-    if (!children) {
+    if (!render || typeof render !== 'function') {
       throw new Error('react-password-indicator: You must provide either children or the render function.');
     }
 
-    const element = children(this.getRootProps());
-    return React.cloneElement(element, {});
+    return render(this.getRootProps());
   }
 }
 
 PasswordInput.propTypes = {
-  name: PropTypes.string,
   defaultValue: PropTypes.string,
   defaultMessages: PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.func,
@@ -510,6 +537,9 @@ PasswordInput.propTypes = {
   render: PropTypes.func,
   children: PropTypes.func,
   onChange: PropTypes.func,
+  onBlur: PropTypes.func,
+  onValidate: PropTypes.func,
+  validateOnBlur: PropTypes.bool,
   rules: PropTypes.arrayOf(PropTypes.shape({
     rule: PropTypes.oneOfType([
       PropTypes.func,
@@ -545,11 +575,13 @@ PasswordInput.defaultProps = {
   rules: [],
   defaultValue: '',
   defaultMessages: {},
+  validateOnBlur: false,
   // We need these props to be undefined
   // in order to check if they are controlled or not
   value: undefined,
-  name: undefined,
   onChange: undefined,
+  onBlur: undefined,
+  onValidate: undefined,
   isVisible: undefined,
   render: undefined,
   children: undefined,
