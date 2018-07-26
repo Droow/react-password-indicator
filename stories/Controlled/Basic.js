@@ -18,16 +18,27 @@ class Basic extends React.PureComponent {
     this.setState((state) => ({ isVisible: !state.isVisible }));
   };
 
-  handleOnChange = (value, status) => {
-    action('input changed')(value, status);
-    this.setState({ value, status });
+  handleOnChange = (value) => {
+    action('input changed')(value);
+    this.setState({ value });
+  };
+
+  handleOnBlur = (value) => {
+    action('input blurred')(value);
+    this.setState({ value });
+  };
+
+  handleOnValidate = (status) => {
+    action('input validated')(status);
+    this.setState({ status });
   };
 
   render() {
     const { isVisible, value, status: { touched, valid } } = this.state;
     return(
       <div>
-        <h2>Basic Usage of controlled mode</h2>
+        <h2>Basic example of controlled mode</h2>
+        <p>Switch the <strong>ACTION LOGGER</strong> tab on the right side to see all the events.</p>
         <button onClick={this.handleToggleShowPassword}>{isVisible ? 'hide password' : 'show password'}</button>
         <PasswordInput
           minLen={5}
@@ -35,6 +46,8 @@ class Basic extends React.PureComponent {
           isVisible={isVisible}
           value={value}
           onChange={this.handleOnChange}
+          onBlur={this.handleOnBlur}
+          onValidate={this.handleOnValidate}
         >
           {({ getInputProps }) => (
             <p>
@@ -64,8 +77,16 @@ class Basic extends React.PureComponent {
     this.setState((state) => ({ isVisible: !state.isVisible }));
   };
 
-  handleOnChange = (value, status) => {
-    this.setState({ value, status });
+  handleOnChange = (value) => {
+    this.setState({ value });
+  };
+
+  handleOnBlur = (value) => {
+    this.setState({ value });
+  };
+
+  handleOnValidate = (status) => {
+    this.setState({ status });
   };
 
   render() {
@@ -80,6 +101,8 @@ class Basic extends React.PureComponent {
           isVisible={isVisible}
           value={value}
           onChange={this.handleOnChange}
+          onBlur={this.handleOnBlur}
+          onValidate={this.handleOnValidate}
         >
           {({ getInputProps, touched }) => (
             <p>

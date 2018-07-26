@@ -5,16 +5,9 @@ import Code from '../utils/Code';
 
 const Basic = () => (
   <div>
-    <h2>Progress Bar</h2>
-    <PasswordInput
-      minLen={5}
-      digits={2}
-      specialChars={2}
-      uppercaseChars={2}
-      maxLen={12}
-      mustMatch="mYsUp3rp4$$"
-      defaultMessages={{ mustMatch: (val) => `Password must be exactly ${val}`}}
-    >
+    <h2>Validation control</h2>
+    <p>Validation on change is the default behaviour, if you want to validate on blur, just add the <code>validateOnBlur</code> prop.</p>
+    <PasswordInput minLen={5} digits={2} specialChars={2} validateOnBlur>
       {({ getInputProps, getProgressProps, valid, hasRulePassed, rules, errors, touched }) => (
         <React.Fragment>
           <p>
@@ -39,15 +32,7 @@ const Basic = () => (
       )}
     </PasswordInput>
     <Code language="language-jsx">
-      {`<PasswordInput
-  minLen={5}
-  digits={2}
-  specialChars={2}
-  uppercaseChars={2}
-  maxLen={12}
-  mustMatch="mYsUp3rp4$$"
-  defaultMessages={{ mustMatch: (val) => \`Password must be exactly \${val}\`}}
->
+      {`<PasswordInput minLen={5} digits={2} specialChars={2} validateOnBlur>
   {({ getInputProps, getProgressProps, valid, hasRulePassed, rules, errors, touched }) => (
     <React.Fragment>
       <p>
