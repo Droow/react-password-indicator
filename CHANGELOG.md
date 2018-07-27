@@ -1,3 +1,11 @@
+## v1.0.0
+- Add more controlled options:
+    * `onBlur`
+    * `onValidate`
+- Add options to choose if validate on change or on blur
+- `onChange` now returns only input value and not the validation result (use `onValidate` for that)
+- Add more examples to storybook (controlled)
+
 ## v0.5.1
 - Add `required` predefined rule
 
